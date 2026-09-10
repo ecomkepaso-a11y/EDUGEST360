@@ -1,7 +1,7 @@
 import express from "express"
 import { ping,welcome } from "../controllers/test.controller.js";
 
-const router=express()
+const router=express.Router()
 
 router.get("/health",(req,res)=>{
     res.status(200).json({
