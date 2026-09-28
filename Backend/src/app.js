@@ -9,6 +9,7 @@ import enseignantRoutes from "./routes/enseignant.routes.js";
 import personnelRoutes from "./routes/personnel.routes.js";
 import parentRoutes from "./routes/parent.routes.js";
 import estResponsableDeRoutes from "./routes/estResponsableDe.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 
 const app=express();
 
@@ -19,8 +20,7 @@ app.use(logger)
 
 //testing the api 
 app.use("/api",testRoutes)
-
-
+app.use("/api/v1/auth", authRoutes);
 //ROUTES
 app.use("/api/v1/etablissements", etablissementRoutes);
 app.use("/api/v1/utilisateurs", utilisateurRoutes);

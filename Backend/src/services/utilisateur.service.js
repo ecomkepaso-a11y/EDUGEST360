@@ -87,22 +87,49 @@ export const getUtilisateurById = async (usr_id) => {
  *
  * If a new password is provided, it is hashed again.
  */
-export const updateUtilisateur = async (usr_id, data) => {
+export const updateUtilisateur = async (usr_id, data, currentUser) => {
     const utilisateur = await Utilisateur.findByPk(usr_id);
 
     if (!utilisateur) {
         const error = new Error(
             `Utilisateur introuvable avec l'identifiant : ${usr_id}`
         );
-
         error.status = 404;
         throw error;
+    }
+
+    const isSelf = currentUser.usr_id === usr_id;
+    const isDirection = currentUser.usr_role === "direction";
+    const isPersonnel = currentUser.usr_role === "personnel";
+
+    // Si l'utilisateur modifie son propre compte,
+    // seuls certains champs sont autorisés.
+    if (isSelf && !isDirection && !isPersonnel) {
+        const allowedFields = [
+            "usr_nom",
+            "usr_prenom",
+            "usr_email",
+            "usr_tel",
+            "password",
+        ];
+
+        const unauthorizedFields = Object.keys(data).filter(
+            (field) => !allowedFields.includes(field)
+        );
+
+        if (unauthorizedFields.length > 0) {
+            const error = new Error(
+                `Modification non autorisée des champs : ${unauthorizedFields.join(", ")}`
+            );
+
+            error.status = 403;
+            throw error;
+        }
     }
 
     try {
         const { password, ...userData } = data;
 
-        // Only hash the password if a new one was provided
         if (password) {
             userData.usr_mdp_hash = await bcrypt.hash(password, 10);
         }
@@ -110,16 +137,14 @@ export const updateUtilisateur = async (usr_id, data) => {
         await utilisateur.update(userData);
 
         return utilisateur;
-
     } catch (error) {
-
         if (error.name === "SequelizeUniqueConstraintError") {
             const fields = error.errors
                 ?.map((err) => err.path)
                 .join(", ");
 
             const conflictError = new Error(
-                `Impossible de modifier l'utilisateur:une valeur existe déjà (${fields}).`
+                `Impossible de modifier l'utilisateur : une valeur existe déjà (${fields}).`
             );
 
             conflictError.status = 409;

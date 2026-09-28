@@ -110,14 +110,15 @@ export const deleteEtablissement = async (eta_id) => {
 
     if (!etablissement) {
         const error = new Error(
-            `etablissement introuvable avec l'identifiant : ${eta_id}`
+            `Établissement introuvable avec l'identifiant : ${eta_id}`
         );
-
         error.status = 404;
         throw error;
     }
 
-    await etablissement.destroy();
+    await etablissement.update({
+        eta_statut: "inactif",
+    });
 
     return etablissement;
 };

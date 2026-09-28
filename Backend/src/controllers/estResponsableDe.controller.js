@@ -15,9 +15,13 @@ import { successResponse } from "../utils/response.js";
  */
 export const create = async (req, res, next) => {
     try {
-        const responsabilite = await createResponsabilite(
-            req.body
-        );
+        const { com_id, mat_eleve } = req.params;
+
+        const responsabilite = await createResponsabilite({
+            com_id,
+            mat_eleve,
+            lien_parente: req.body.lien_parente,
+        });
 
         return successResponse(
             res,

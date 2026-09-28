@@ -70,7 +70,8 @@ export const update = async (req, res, next) => {
 
         const utilisateur = await updateUtilisateur(
             usr_id,
-            req.body
+            req.body,
+            req.user
         );
 
         return successResponse(
