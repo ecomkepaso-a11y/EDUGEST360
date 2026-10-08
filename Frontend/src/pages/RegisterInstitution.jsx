@@ -1,36 +1,47 @@
 import { useState } from "react";
-import {ArrowLeft,ArrowRight,Building2,Check,GraduationCap,Mail,MapPin,Phone,ShieldCheck,User,Lock,Eye,EyeOff,} from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  Check,
+  GraduationCap,
+  Mail,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  User,
+  Lock,
+  Eye,
+  EyeOff,
+  Users,
+  BookOpen,
+  Sparkles,
+  Map,
+} from "lucide-react";
 
 // ============================================================
 // MAIN COMPONENT
 // ============================================================
 
 export default function RegisterInstitution() {
-
-  // Controls which registration step is currently displayed
   // 1 = Institution information
   // 2 = Administrator account
   // 3 = Review and create
   const [step, setStep] = useState(1);
 
-  // Controls password visibility
+  // Password visibility
   const [showPassword, setShowPassword] = useState(false);
-
-  // Controls confirmation-password visibility
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Indicates whether the registration request is being processed
+  // Loading state
   const [loading, setLoading] = useState(false);
-
 
   // ============================================================
   // FORM STATE
   // ============================================================
 
-  // Stores all information entered during institution registration
   const [form, setForm] = useState({
-
-    // Institution information
+    // Institution
     schoolName: "",
     schoolCode: "",
     institutionType: "",
@@ -41,7 +52,7 @@ export default function RegisterInstitution() {
     schoolEmail: "",
     schoolPhone: "",
 
-    // Administrator information
+    // Administrator
     adminFirstName: "",
     adminLastName: "",
     adminEmail: "",
@@ -49,39 +60,24 @@ export default function RegisterInstitution() {
     password: "",
     confirmPassword: "",
 
-    // Terms and conditions
+    // Terms
     terms: false,
   });
 
-
-  // Stores validation errors for individual fields
   const [errors, setErrors] = useState({});
-
 
   // ============================================================
   // HANDLE INPUT CHANGES
   // ============================================================
 
   function handleChange(e) {
+    const { name, value, type, checked } = e.target;
 
-    // Get the input name, value, type and checkbox state
-    const {
-      name,
-      value,
-      type,
-      checked,
-    } = e.target;
-
-    // Update only the field that changed
     setForm((prev) => ({
       ...prev,
-
-      // Checkboxes use "checked", other inputs use "value"
       [name]: type === "checkbox" ? checked : value,
     }));
 
-    // If the field previously had an error,
-    // remove that error when the user starts correcting it
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -90,912 +86,966 @@ export default function RegisterInstitution() {
     }
   }
 
-
   // ============================================================
-  // VALIDATE CURRENT STEP
+  // VALIDATION
   // ============================================================
 
   function validateStep() {
-
-    // Object that will contain validation errors
     const next = {};
 
-
-    // ------------------------------------------------------------
-    // STEP 1 VALIDATION
-    // ------------------------------------------------------------
+    // ----------------------------------------------------------
+    // STEP 1
+    // ----------------------------------------------------------
 
     if (step === 1) {
-
-      // Institution name is required
       if (!form.schoolName.trim()) {
         next.schoolName = "Enter your institution name";
       }
 
-      // Institution type is required
       if (!form.institutionType) {
         next.institutionType = "Select an institution type";
       }
 
-      // Region is required
       if (!form.region.trim()) {
         next.region = "Enter your region";
       }
 
-      // City is required
       if (!form.city.trim()) {
         next.city = "Enter your city";
       }
 
-      // Institution email is required
       if (!form.schoolEmail.trim()) {
         next.schoolEmail = "Enter your institution email";
       }
 
-      // Institution phone is required
       if (!form.schoolPhone.trim()) {
         next.schoolPhone = "Enter your institution phone";
       }
     }
 
-
-    // ------------------------------------------------------------
-    // STEP 2 VALIDATION
-    // ------------------------------------------------------------
+    // ----------------------------------------------------------
+    // STEP 2
+    // ----------------------------------------------------------
 
     if (step === 2) {
-
-      // Administrator first name
       if (!form.adminFirstName.trim()) {
         next.adminFirstName = "Enter your first name";
       }
 
-      // Administrator last name
       if (!form.adminLastName.trim()) {
         next.adminLastName = "Enter your last name";
       }
 
-      // Administrator email
       if (!form.adminEmail.trim()) {
         next.adminEmail = "Enter your email";
       }
 
-      // Administrator phone
       if (!form.adminPhone.trim()) {
         next.adminPhone = "Enter your phone number";
       }
 
-      // Password must exist
       if (!form.password) {
         next.password = "Create a password";
+      } else if (form.password.length < 8) {
+        next.password = "Password must contain at least 8 characters";
       }
 
-      // Password must contain at least 8 characters
-      else if (form.password.length < 8) {
-        next.password =
-          "Password must contain at least 8 characters";
-      }
-
-      // Confirm password
       if (!form.confirmPassword) {
         next.confirmPassword = "Confirm your password";
-      }
-
-      // Passwords must match
-      else if (form.password !== form.confirmPassword) {
+      } else if (form.password !== form.confirmPassword) {
         next.confirmPassword = "Passwords do not match";
       }
     }
 
-
-    // ------------------------------------------------------------
-    // STEP 3 VALIDATION
-    // ------------------------------------------------------------
+    // ----------------------------------------------------------
+    // STEP 3
+    // ----------------------------------------------------------
 
     if (step === 3) {
-
-      // User must accept the terms
       if (!form.terms) {
-        next.terms =
-          "You must accept the terms to continue";
+        next.terms = "You must accept the terms to continue";
       }
     }
 
-
-    // Save all validation errors
     setErrors(next);
 
-    // Return true when there are no errors
     return Object.keys(next).length === 0;
   }
 
-
   // ============================================================
-  // MOVE TO NEXT STEP
+  // NEXT STEP
   // ============================================================
 
   function nextStep() {
-
-    // Do not continue if the current step contains errors
     if (!validateStep()) return;
 
-    // Move to the next step
-    // Math.min prevents the value from going above 3
     setStep((prev) => Math.min(prev + 1, 3));
   }
 
-
   // ============================================================
-  // MOVE TO PREVIOUS STEP
+  // PREVIOUS STEP
   // ============================================================
 
   function previousStep() {
-
-    // Move one step backward
-    // Math.max prevents the value from going below 1
+    setErrors({});
     setStep((prev) => Math.max(prev - 1, 1));
   }
 
-
   // ============================================================
-  // SUBMIT REGISTRATION
+  // SUBMIT
   // ============================================================
 
   async function handleSubmit(e) {
-
-    // Prevent browser from refreshing the page
     e.preventDefault();
 
-    // Validate the final step
     if (!validateStep()) return;
 
-    // Show loading state
     setLoading(true);
 
     try {
-
-      // ----------------------------------------------------------
       // TODO:
-      // Replace this fake delay with your real backend API call.
-      //
-      // Example:
-      //
-      // const response = await fetch(
-      //   "/api/auth/register-institution",
-      //   {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify(form),
-      //   }
-      // );
-      //
-      // const data = await response.json();
-      // ----------------------------------------------------------
+      // Replace with your real backend API call.
 
-      // Fake delay for testing the UI
-      await new Promise((resolve) =>
-        setTimeout(resolve, 1200)
-      );
+      await new Promise((resolve) => setTimeout(resolve, 1200));
 
-      // Display submitted information in the console
-      console.log(
-        "Institution registration:",
-        form
-      );
+      console.log("Institution registration:", form);
 
-      // Temporary success message
       alert("Institution created successfully!");
-
     } catch (error) {
-
-      // Display backend/network errors in the console
-      console.error(
-        "Registration error:",
-        error
-      );
-
+      console.error("Registration error:", error);
     } finally {
-
-      // Always remove loading state
-      // whether the request succeeds or fails
       setLoading(false);
     }
   }
 
+  // ============================================================
+  // STEP INFORMATION
+  // ============================================================
+
+  const stepInfo = {
+    1: {
+      title: "Institution",
+      subtitle: "Tell us about your school",
+      icon: Building2,
+    },
+    2: {
+      title: "Administrator",
+      subtitle: "Create your administrator account",
+      icon: ShieldCheck,
+    },
+    3: {
+      title: "Review",
+      subtitle: "Review everything before creating",
+      icon: Check,
+    },
+  };
+
+  const CurrentIcon = stepInfo[step].icon;
 
   // ============================================================
-  // PAGE UI
+  // PAGE
   // ============================================================
 
   return (
+    <div className="min-h-screen bg-[#EDE5D8] text-[#3D3832] font-sans overflow-hidden">
+      <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[52%_48%]">
 
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[minmax(420px,560px)_1fr] bg-[#FBF3E7] text-[#2B2118] font-sans">
+        {/* ======================================================
+            LEFT — VISUAL BRAND PANEL
+        ====================================================== */}
 
+        <div className="relative hidden overflow-hidden lg:flex min-h-screen flex-col bg-[#E9E0D1] px-16 py-10 xl:px-20">
 
-      {/* ========================================================
-          LEFT PANEL
-          Contains the registration form
-      ======================================================== */}
+          {/* ==================================================
+              BACKGROUND GRID
+          ================================================== */}
 
-      <div className="flex flex-col px-6 py-10 lg:px-14 lg:py-10 overflow-y-auto">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-40"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(91,76,55,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(91,76,55,0.07) 1px, transparent 1px)",
+              backgroundSize: "72px 72px",
+            }}
+          />
 
+          {/* ==================================================
+              SOFT LIGHT
+          ================================================== */}
 
-        {/* --------------------------------------------------------
-            EDUGEST 360 LOGO
-        -------------------------------------------------------- */}
+          <div className="pointer-events-none absolute -left-32 top-20 h-[520px] w-[520px] rounded-full bg-[#FFFDF8]/80 blur-3xl" />
 
-        <div className="flex items-center gap-2.5 mb-10">
+          <div className="pointer-events-none absolute bottom-[-180px] right-[-120px] h-[500px] w-[500px] rounded-full bg-[#D9B878]/20 blur-3xl" />
 
-          {/* Logo icon */}
-          <span className="grid place-items-center w-[34px] h-[34px] rounded-[10px] bg-[#D2652F] text-[#FFF5EA]">
+          {/* ==================================================
+              LOGO
+          ================================================== */}
 
-            <GraduationCap
-              size={20}
-              strokeWidth={2.2}
-            />
+          <div className="relative z-10 flex items-center gap-3">
 
-          </span>
-
-
-          {/* Application name */}
-          <span className="font-serif font-semibold text-[19px] tracking-tight">
-            Edugest 360
-          </span>
-
-        </div>
-
-
-        {/* Main form container */}
-        <div className="max-w-[440px] w-full mx-auto">
-
-
-          {/* ------------------------------------------------------
-              PAGE HEADER
-          ------------------------------------------------------ */}
-
-          <div className="mb-8">
-
-            <h1 className="font-serif font-semibold text-[32px] leading-tight tracking-tight mb-2">
-              Set up your institution
-            </h1>
-
-            <p className="text-[#8A7C6D] text-[14.5px] leading-relaxed">
-              Create your school workspace and become its first administrator.
-            </p>
-
-          </div>
-
-
-          {/* ------------------------------------------------------
-              REGISTRATION PROGRESS INDICATOR
-          ------------------------------------------------------ */}
-
-          <div className="flex items-center mb-9">
-
-            {[1, 2, 3].map((item, index) => (
-
-              <div
-                key={item}
-                className="flex items-center flex-1 last:flex-none"
-              >
-
-                {/* Number/check circle */}
-                <div
-                  className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition ${
-                    step >= item
-                      ? "bg-[#D2652F] text-white"
-                      : "bg-[#EDE1D1] text-[#9B8C7B]"
-                  }`}
-                >
-
-                  {/* Show check when this step has already been completed */}
-                  {step > item ? (
-                    <Check size={17} />
-                  ) : (
-                    item
-                  )}
-
-                </div>
-
-
-                {/* Connector between steps */}
-                {index < 2 && (
-                  <div
-                    className={`h-[2px] flex-1 mx-2 transition ${
-                      step > item
-                        ? "bg-[#D2652F]"
-                        : "bg-[#E5D8C7]"
-                    }`}
-                  />
-                )}
-
+            <div className="grid h-11 w-11 place-items-center rounded-[13px] bg-[#3F3A34] text-[#F7EBD5] shadow-lg">
+              <div className="flex items-end gap-[3px]">
+                <span className="h-3 w-[4px] rounded-sm bg-[#F7EBD5]" />
+                <span className="h-5 w-[4px] rounded-sm bg-[#F7EBD5]" />
+                <span className="h-4 w-[4px] rounded-sm bg-[#D2A454]" />
               </div>
-
-            ))}
-
-          </div>
-
-
-          {/* ------------------------------------------------------
-              CURRENT STEP TITLE
-          ------------------------------------------------------ */}
-
-          <div className="flex items-center gap-2 mb-5">
-
-            {/* Step icon */}
-            <div className="w-8 h-8 rounded-lg bg-[#F3DFCF] text-[#D2652F] grid place-items-center">
-
-              {step === 1 && <Building2 size={17} />}
-
-              {step === 2 && <ShieldCheck size={17} />}
-
-              {step === 3 && <Check size={17} />}
-
             </div>
 
-
-            {/* Step number and title */}
             <div>
-
-              <p className="text-[13px] text-[#9A8B7B]">
-                Step {step} of 3
+              <p className="text-[20px] font-semibold tracking-tight text-[#27231F]">
+                EDUGEST <span className="text-[#B58A42]">360</span>
               </p>
-
-              <h2 className="font-semibold text-[17px]">
-
-                {step === 1 &&
-                  "Institution information"}
-
-                {step === 2 &&
-                  "Administrator account"}
-
-                {step === 3 &&
-                  "Review & create"}
-
-              </h2>
-
             </div>
 
           </div>
 
+          {/* ==================================================
+              DECORATIVE EDUCATION OBJECTS
+          ================================================== */}
 
-          {/* ======================================================
-              REGISTRATION FORM
-          ====================================================== */}
+          <div className="relative z-10 flex flex-1 items-center justify-center">
 
-          <form
-            onSubmit={handleSubmit}
-            noValidate
-          >
+            <div className="relative h-[520px] w-full max-w-[570px]">
 
+              {/* Large central glow */}
 
-            {/* ====================================================
-                STEP 1 — INSTITUTION INFORMATION
-            ==================================================== */}
+              <div className="absolute left-1/2 top-[40%] h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#F5E9CF]/90 blur-2xl" />
 
-            {step === 1 && (
+              {/* Golden circle */}
 
-              <div className="flex flex-col gap-4">
+              <div className="absolute left-1/2 top-[25%] h-[90px] w-[90px] -translate-x-1/2 rounded-full bg-gradient-to-br from-[#F4D89D] to-[#C79B4C] shadow-[0_20px_50px_rgba(160,120,50,0.2)]" />
 
+              {/* School building */}
 
-                {/* Institution name */}
-                <Input
-                  label="Institution name"
-                  name="schoolName"
-                  placeholder="Logpom International School"
-                  value={form.schoolName}
-                  onChange={handleChange}
-                  error={errors.schoolName}
-                  icon={<Building2 size={17} />}
+              <div className="absolute left-1/2 top-[37%] -translate-x-1/2">
+
+                {/* Roof */}
+
+                <div
+                  className="mx-auto h-0 w-0 border-l-[90px] border-r-[90px] border-b-[85px] border-l-transparent border-r-transparent border-b-[#F8F3EA]"
+                  style={{
+                    filter:
+                      "drop-shadow(0 15px 20px rgba(80,65,45,0.08))",
+                  }}
                 />
 
+                {/* Building */}
 
-                {/* Institution code + type */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="relative -mt-1 h-[115px] w-[215px] rounded-[20px] border border-white/70 bg-white/65 shadow-[0_25px_60px_-25px_rgba(70,55,35,0.3)] backdrop-blur-xl">
 
-                  <Input
-                    label="Institution code"
-                    name="schoolCode"
-                    placeholder="LIS-001"
-                    value={form.schoolCode}
-                    onChange={handleChange}
-                  />
+                  <div className="absolute bottom-0 left-1/2 h-[72px] w-[45px] -translate-x-1/2 rounded-t-[14px] bg-[#423C35]" />
 
+                  <div className="absolute bottom-[22px] left-[30px] h-[38px] w-[28px] rounded-t-[12px] bg-[#D2C9BD]" />
 
-                  {/* Institution type dropdown */}
-                  <div className="flex flex-col gap-1.5">
+                  <div className="absolute bottom-[22px] right-[30px] h-[38px] w-[28px] rounded-t-[12px] bg-[#D2C9BD]" />
 
-                    <label className="text-[13px] font-medium text-[#5C4F42]">
-                      Institution type
-                    </label>
+                </div>
+              </div>
 
-                    <select
-                      name="institutionType"
-                      value={form.institutionType}
-                      onChange={handleChange}
-                      className={`h-12 rounded-xl bg-white border-[1.5px] px-3.5 outline-none text-[14px] ${
-                        errors.institutionType
-                          ? "border-[#C94F3F]"
-                          : "border-[#EEE2D0]"
-                      }`}
-                    >
+              {/* Floating card — students */}
 
-                      <option value="">
-                        Select type
-                      </option>
+              <div className="absolute left-[2%] top-[18%] w-[180px] rotate-[-5deg] rounded-[22px] border border-white/80 bg-white/70 p-4 shadow-[0_25px_50px_-25px_rgba(60,50,35,0.3)] backdrop-blur-xl">
 
-                      <option value="primary">
-                        Primary
-                      </option>
+                <div className="flex items-center gap-3">
 
-                      <option value="secondary">
-                        Secondary
-                      </option>
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#EFE7D9] text-[#A27B3A]">
+                    <BookOpen size={19} />
+                  </div>
 
-                      <option value="higher">
-                        Higher Education
-                      </option>
+                  <div>
+                    <p className="text-[12px] font-semibold text-[#4B443C]">
+                      Learning
+                    </p>
 
-                      <option value="training">
-                        Training Center
-                      </option>
-
-                    </select>
-
-
-                    {errors.institutionType && (
-                      <ErrorText
-                        text={errors.institutionType}
-                      />
-                    )}
-
+                    <p className="mt-1 text-[10px] text-[#8B8174]">
+                      Connected classrooms
+                    </p>
                   </div>
 
                 </div>
 
-
-                {/* Region + city */}
-                <div className="grid grid-cols-2 gap-3">
-
-                  <Input
-                    label="Region"
-                    name="region"
-                    placeholder="Littoral"
-                    value={form.region}
-                    onChange={handleChange}
-                    error={errors.region}
-                  />
-
-                  <Input
-                    label="City"
-                    name="city"
-                    placeholder="Douala"
-                    value={form.city}
-                    onChange={handleChange}
-                    error={errors.city}
-                  />
-
-                </div>
-
-
-                {/* Institution address */}
-                <Input
-                  label="Address"
-                  name="address"
-                  placeholder="Logpom, Douala"
-                  value={form.address}
-                  onChange={handleChange}
-                  icon={<MapPin size={17} />}
-                />
-
-
-                {/* Official institution email */}
-                <Input
-                  label="Official email"
-                  name="schoolEmail"
-                  type="email"
-                  placeholder="contact@school.cm"
-                  value={form.schoolEmail}
-                  onChange={handleChange}
-                  error={errors.schoolEmail}
-                  icon={<Mail size={17} />}
-                />
-
-
-                {/* Official institution phone */}
-                <Input
-                  label="Official phone"
-                  name="schoolPhone"
-                  placeholder="+237 6XX XXX XXX"
-                  value={form.schoolPhone}
-                  onChange={handleChange}
-                  error={errors.schoolPhone}
-                  icon={<Phone size={17} />}
-                />
-
               </div>
-            )}
 
+              {/* Floating card — community */}
 
-            {/* ====================================================
-                STEP 2 — ADMINISTRATOR ACCOUNT
-            ==================================================== */}
+              <div className="absolute bottom-[18%] left-[12%] w-[220px] rotate-[2deg] rounded-[22px] border border-white/80 bg-white/70 p-4 shadow-[0_25px_50px_-25px_rgba(60,50,35,0.3)] backdrop-blur-xl">
 
-            {step === 2 && (
+                <div className="flex items-center gap-3">
 
-              <div className="flex flex-col gap-4">
+                  <div className="flex -space-x-2">
 
+                    <span className="grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-[#3F3A34] text-[10px] font-semibold text-white">
+                      AD
+                    </span>
 
-                {/* First name + last name */}
-                <div className="grid grid-cols-2 gap-3">
+                    <span className="grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-[#9BAA9A] text-[10px] font-semibold text-white">
+                      AM
+                    </span>
 
-                  <Input
-                    label="First name"
-                    name="adminFirstName"
-                    placeholder="Amina"
-                    value={form.adminFirstName}
-                    onChange={handleChange}
-                    error={errors.adminFirstName}
-                    icon={<User size={17} />}
-                  />
+                    <span className="grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-[#B79A68] text-[10px] font-semibold text-white">
+                      +8
+                    </span>
 
-                  <Input
-                    label="Last name"
-                    name="adminLastName"
-                    placeholder="Nfor"
-                    value={form.adminLastName}
-                    onChange={handleChange}
-                    error={errors.adminLastName}
-                  />
+                  </div>
 
-                </div>
+                  <div>
+                    <p className="text-[11px] font-semibold text-[#514940]">
+                      Your community
+                    </p>
 
-
-                {/* Administrator email */}
-                <Input
-                  label="Administrator email"
-                  name="adminEmail"
-                  type="email"
-                  placeholder="amina@school.cm"
-                  value={form.adminEmail}
-                  onChange={handleChange}
-                  error={errors.adminEmail}
-                  icon={<Mail size={17} />}
-                />
-
-
-                {/* Administrator phone */}
-                <Input
-                  label="Phone number"
-                  name="adminPhone"
-                  placeholder="+237 6XX XXX XXX"
-                  value={form.adminPhone}
-                  onChange={handleChange}
-                  error={errors.adminPhone}
-                  icon={<Phone size={17} />}
-                />
-
-
-                {/* Administrator password */}
-                <PasswordInput
-                  label="Password"
-                  name="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  error={errors.password}
-                  show={showPassword}
-                  setShow={setShowPassword}
-                />
-
-
-                {/* Confirm password */}
-                <PasswordInput
-                  label="Confirm password"
-                  name="confirmPassword"
-                  value={form.confirmPassword}
-                  onChange={handleChange}
-                  error={errors.confirmPassword}
-                  show={showConfirmPassword}
-                  setShow={setShowConfirmPassword}
-                />
-
-
-                {/* Information box explaining administrator permissions */}
-                <div className="rounded-xl bg-[#F6E9D9] p-3.5 text-[12.5px] text-[#725F4E]">
-
-                  <strong className="text-[#4D3D30]">
-                    Administrator access
-                  </strong>
-
-                  <br />
-
-                  This account will become the initial administrator of your
-                  institution and will be able to manage users, roles and
-                  school settings.
+                    <p className="mt-1 text-[10px] text-[#8B8174]">
+                      Students · Teachers · Parents
+                    </p>
+                  </div>
 
                 </div>
 
               </div>
-            )}
 
+              {/* Floating card — secure */}
 
-            {/* ====================================================
-                STEP 3 — REVIEW & CREATE
-            ==================================================== */}
+              <div className="absolute right-[4%] top-[27%] w-[170px] rotate-[5deg] rounded-[22px] border border-white/80 bg-white/70 p-4 shadow-[0_25px_50px_-25px_rgba(60,50,35,0.3)] backdrop-blur-xl">
 
-            {step === 3 && (
+                <div className="flex items-center gap-3">
 
-              <div className="flex flex-col gap-4">
+                  <div className="grid h-10 w-10 place-items-center rounded-full border-[5px] border-[#D2A454]/25 text-[#B18A48]">
+                    <ShieldCheck size={17} />
+                  </div>
 
+                  <div>
+                    <p className="text-[12px] font-semibold text-[#4B443C]">
+                      Secure
+                    </p>
 
-                {/* Summary card */}
-                <div className="rounded-2xl bg-white border border-[#EEE2D0] p-5">
-
-
-                  {/* Institution summary */}
-                  <h3 className="font-semibold mb-4">
-                    Institution
-                  </h3>
-
-                  <Summary
-                    label="Name"
-                    value={form.schoolName}
-                  />
-
-                  <Summary
-                    label="Type"
-                    value={form.institutionType}
-                  />
-
-                  <Summary
-                    label="Location"
-                    value={`${form.city}, ${form.region}`}
-                  />
-
-                  <Summary
-                    label="Email"
-                    value={form.schoolEmail}
-                  />
-
-                  <Summary
-                    label="Phone"
-                    value={form.schoolPhone}
-                  />
-
-
-                  {/* Separator */}
-                  <div className="border-t border-[#EEE2D0] my-4" />
-
-
-                  {/* Administrator summary */}
-                  <h3 className="font-semibold mb-4">
-                    Administrator
-                  </h3>
-
-                  <Summary
-                    label="Name"
-                    value={`${form.adminFirstName} ${form.adminLastName}`}
-                  />
-
-                  <Summary
-                    label="Email"
-                    value={form.adminEmail}
-                  />
-
-                  <Summary
-                    label="Phone"
-                    value={form.adminPhone}
-                  />
+                    <p className="mt-1 text-[10px] text-[#8B8174]">
+                      Protected workspace
+                    </p>
+                  </div>
 
                 </div>
 
-
-                {/* Terms and conditions */}
-                <label className="flex gap-3 items-start cursor-pointer">
-
-                  <input
-                    type="checkbox"
-                    name="terms"
-                    checked={form.terms}
-                    onChange={handleChange}
-                    className="mt-1 accent-[#D2652F]"
-                  />
-
-                  <span className="text-[13px] leading-relaxed text-[#6E6052]">
-                    I agree to the Edugest 360 terms of service and confirm
-                    that I am authorized to create this institution account.
-                  </span>
-
-                </label>
-
-
-                {/* Terms validation error */}
-                {errors.terms && (
-                  <ErrorText text={errors.terms} />
-                )}
-
               </div>
-            )}
 
+              {/* Small floating sparkle */}
 
-            {/* ====================================================
-                FORM NAVIGATION BUTTONS
-            ==================================================== */}
+              <div className="absolute right-[17%] bottom-[25%] grid h-11 w-11 place-items-center rounded-full border border-white/70 bg-white/60 text-[#B88D43] shadow-lg backdrop-blur-xl">
+                <Sparkles size={17} />
+              </div>
 
-            <div className="flex gap-3 mt-7">
+            </div>
+          </div>
 
+          {/* ==================================================
+              BRAND MESSAGE
+          ================================================== */}
 
-              {/* Back button only appears after step 1 */}
-              {step > 1 && (
+          <div className="relative z-10 max-w-[560px]">
 
-                <button
-                  type="button"
-                  onClick={previousStep}
-                  className="h-12 px-5 rounded-xl border border-[#E4D7C7] text-[#5C4F42] font-semibold flex items-center gap-2 hover:bg-[#F6E9D9] transition"
-                >
+            <p className="font-label text-[11px] font-semibold uppercase tracking-[0.28em] text-[#B48842]">
+              L'école de demain, dès aujourd'hui
+            </p>
 
-                  <ArrowLeft size={17} />
+            <h2 className="mt-4 max-w-[540px] text-[44px] font-medium leading-[1.03] tracking-[-0.045em] text-[#38332D] xl:text-[52px]">
 
-                  Back
+              Votre établissement,
+              <br />
 
-                </button>
+              <span className="text-[#8E8376]">
+                réinventé.
+              </span>
 
-              )}
+            </h2>
 
+            <p className="mt-5 max-w-[520px] text-[15px] leading-7 text-[#756B60]">
+              Une plateforme intelligente pour connecter établissements,
+              enseignants, élèves et familles dans un espace unique.
+            </p>
 
-              {/* Continue button for steps 1 and 2 */}
-              {step < 3 ? (
+            <div className="mt-7 flex flex-wrap gap-7">
 
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="flex-1 h-12 rounded-xl bg-[#D2652F] text-white font-semibold flex items-center justify-center gap-2 hover:bg-[#BD5626] transition"
-                >
+              <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#806E58]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#B9914A]" />
+                Intelligent
+              </span>
 
-                  Continue
+              <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#806E58]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#B9914A]" />
+                Humain
+              </span>
 
-                  <ArrowRight size={17} />
-
-                </button>
-
-              ) : (
-
-                /* Final button for creating the institution */
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 h-12 rounded-xl bg-[#D2652F] text-white font-semibold flex items-center justify-center gap-2 hover:bg-[#BD5626] disabled:opacity-70 transition"
-                >
-
-                  {loading
-                    ? "Creating institution..."
-                    : "Create institution"}
-
-                  {!loading && (
-                    <Check size={17} />
-                  )}
-
-                </button>
-
-              )}
+              <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#806E58]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#B9914A]" />
+                Sécurisé
+              </span>
 
             </div>
 
-          </form>
-
-
-          {/* ------------------------------------------------------
-              LINK BACK TO LOGIN
-          ------------------------------------------------------ */}
-
-          <p className="text-center text-[13.5px] text-[#8A7C6D] mt-7">
-
-            Already have an account?{" "}
-
-            <a
-              href="/login"
-              className="font-medium text-[#D2652F] hover:underline"
-            >
-              Sign in
-            </a>
-
-          </p>
+          </div>
 
         </div>
 
-      </div>
+        {/* ======================================================
+            RIGHT — REGISTRATION PANEL
+        ====================================================== */}
 
+        <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F1EBE2] px-5 py-8 sm:px-8 lg:px-10">
 
-      {/* ========================================================
-          RIGHT HERO PANEL
-      ======================================================== */}
+          {/* Background glow */}
 
-      <div className="relative hidden lg:flex flex-col justify-center items-center overflow-hidden bg-[#2B2118] p-12">
+          <div className="pointer-events-none absolute right-[-120px] top-[-100px] h-[380px] w-[380px] rounded-full bg-[#E1C78E]/20 blur-3xl" />
 
+          <div className="pointer-events-none absolute bottom-[-150px] left-[-100px] h-[360px] w-[360px] rounded-full bg-white/70 blur-3xl" />
 
-        {/* Decorative orange glow */}
-        <div className="absolute -top-[15%] -right-[10%] w-[520px] h-[520px] rounded-full bg-[radial-gradient(circle,rgba(210,101,47,0.32),transparent_70%)]" />
+          {/* Mobile logo */}
 
+          <div className="absolute left-6 top-6 flex items-center gap-2.5 lg:hidden">
 
-        <div className="relative max-w-[420px]">
+            <span className="grid h-9 w-9 place-items-center rounded-[10px] bg-[#3F3A34] text-[#F7EBD5]">
+              <GraduationCap size={18} />
+            </span>
 
-
-          {/* Small badge */}
-          <div className="inline-flex items-center gap-2 bg-[#3A2D20] border border-[#4B3B2B] rounded-full px-3.5 py-2 mb-7">
-
-            <ShieldCheck
-              size={15}
-              className="text-[#D2652F]"
-            />
-
-            <span className="text-[12px] text-[#C8B9A7]">
-              Institution onboarding
+            <span className="text-[17px] font-semibold tracking-tight text-[#302B25]">
+              EDUGEST <span className="text-[#B58A42]">360</span>
             </span>
 
           </div>
 
+          {/* ==================================================
+              GLASS REGISTRATION CARD
+          ================================================== */}
 
-          {/* Hero heading */}
-          <h2 className="font-serif text-[42px] leading-[1.08] font-semibold text-[#F3EAD9]">
-            Everything your institution needs.
-          </h2>
+          <div className="relative z-10 w-full max-w-[650px] rounded-[32px] border border-white/80 bg-white/65 p-6 shadow-[0_30px_80px_-35px_rgba(70,55,35,0.3)] backdrop-blur-2xl sm:p-8 lg:p-10">
 
+            {/* Header */}
 
-          {/* Hero description */}
-          <p className="text-[#A99D8C] mt-5 text-[15px] leading-relaxed">
-            Build your school's digital workspace, manage your community,
-            and bring every classroom together in one place.
-          </p>
+            <div className="flex items-start justify-between gap-5">
 
+              <div>
 
-          {/* Feature cards */}
-          <div className="mt-10 space-y-3">
+                <p className="font-label text-[10px] font-semibold uppercase tracking-[0.28em] text-[#B08845]">
+                  Créer votre espace
+                </p>
 
+                <h1 className="mt-2 text-[32px] font-semibold leading-tight tracking-[-0.035em] text-[#38332D] sm:text-[38px]">
+                  Bienvenue sur EDUGEST
+                </h1>
 
-            {/* Community management */}
-            <Feature
-              icon={<User size={18} />}
-              title="Manage your community"
-              text="Students, teachers, parents and staff."
-            />
+                <p className="mt-2 max-w-[470px] text-[14px] leading-6 text-[#82786C]">
+                  Configurez votre établissement et créez le premier compte administrateur.
+                </p>
 
+              </div>
 
-            {/* School workspace */}
-            <Feature
-              icon={<Building2 size={18} />}
-              title="One school workspace"
-              text="Everything connected to your institution."
-            />
+              <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#F0E9DD] text-[#B48A45] sm:flex">
+                <Building2 size={21} strokeWidth={1.7} />
+              </div>
 
+            </div>
 
-            {/* Role-based access */}
-            <Feature
-              icon={<ShieldCheck size={18} />}
-              title="Role-based access"
-              text="Give every user the right permissions."
-            />
+            {/* ==================================================
+                STEP PROGRESS
+            ================================================== */}
+
+            <div className="mt-8">
+
+              <div className="flex items-center">
+
+                {[1, 2, 3].map((item, index) => (
+                  <div
+                    key={item}
+                    className={`flex items-center ${
+                      index < 2 ? "flex-1" : ""
+                    }`}
+                  >
+
+                    <div className="flex flex-col items-center">
+
+                      <div
+                        className={`grid h-9 w-9 place-items-center rounded-full border transition-all duration-300 ${
+                          step >= item
+                            ? "border-[#3F3A34] bg-[#3F3A34] text-[#F7EBD5] shadow-[0_8px_20px_-10px_rgba(50,40,30,0.7)]"
+                            : "border-[#DDD3C5] bg-white/60 text-[#9B9083]"
+                        }`}
+                      >
+                        {step > item ? (
+                          <Check size={15} strokeWidth={2.5} />
+                        ) : (
+                          item
+                        )}
+                      </div>
+
+                      <span
+                        className={`mt-1.5 hidden text-[9px] font-semibold uppercase tracking-[0.12em] sm:block ${
+                          step >= item
+                            ? "text-[#514940]"
+                            : "text-[#A1988C]"
+                        }`}
+                      >
+                        {item === 1
+                          ? "Établissement"
+                          : item === 2
+                          ? "Admin"
+                          : "Finaliser"}
+                      </span>
+
+                    </div>
+
+                    {index < 2 && (
+                      <div
+                        className={`mx-2 mt-[-17px] h-px flex-1 transition-all duration-300 ${
+                          step > item
+                            ? "bg-[#B9914A]"
+                            : "bg-[#D9D0C4]"
+                        }`}
+                      />
+                    )}
+
+                  </div>
+                ))}
+
+              </div>
+
+            </div>
+
+            {/* ==================================================
+                CURRENT STEP
+            ================================================== */}
+
+            <div className="mt-7 flex items-center gap-3">
+
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#F0E8DA] text-[#AE8340]">
+                <CurrentIcon size={18} strokeWidth={1.8} />
+              </div>
+
+              <div>
+
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A18F7A]">
+                  Étape {step} sur 3
+                </p>
+
+                <h2 className="mt-0.5 text-[16px] font-semibold text-[#484039]">
+                  {stepInfo[step].title}
+                </h2>
+
+              </div>
+
+            </div>
+
+            {/* ==================================================
+                FORM
+            ================================================== */}
+
+            <form
+              onSubmit={handleSubmit}
+              noValidate
+              className="mt-6"
+            >
+
+              {/* =================================================
+                  STEP 1
+              ================================================= */}
+
+              {step === 1 && (
+                <div className="flex flex-col gap-4">
+
+                  <Input
+                    label="Nom de l'établissement"
+                    name="schoolName"
+                    placeholder="Logpom International School"
+                    value={form.schoolName}
+                    onChange={handleChange}
+                    error={errors.schoolName}
+                    icon={<Building2 size={16} />}
+                  />
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                    <Input
+                      label="Code établissement"
+                      name="schoolCode"
+                      placeholder="LIS-001"
+                      value={form.schoolCode}
+                      onChange={handleChange}
+                    />
+
+                    <div className="flex flex-col gap-1.5">
+
+                      <label className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6C6257]">
+                        Type
+                      </label>
+
+                      <select
+                        name="institutionType"
+                        value={form.institutionType}
+                        onChange={handleChange}
+                        className={`h-[50px] rounded-xl border bg-white/60 px-3.5 text-[14px] text-[#4C443C] outline-none transition focus:border-[#B8914A] focus:bg-white/80 focus:ring-4 focus:ring-[#B8914A]/10 ${
+                          errors.institutionType
+                            ? "border-red-400"
+                            : "border-[#DED5C9]"
+                        }`}
+                      >
+
+                        <option value="">
+                          Select type
+                        </option>
+
+                        <option value="primary">
+                          Primary
+                        </option>
+
+                        <option value="secondary">
+                          Secondary
+                        </option>
+
+                        <option value="higher">
+                          Higher Education
+                        </option>
+
+                        <option value="training">
+                          Training Center
+                        </option>
+
+                      </select>
+
+                      {errors.institutionType && (
+                        <ErrorText text={errors.institutionType} />
+                      )}
+
+                    </div>
+
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                    <Input
+                      label="Région"
+                      name="region"
+                      placeholder="Littoral"
+                      value={form.region}
+                      onChange={handleChange}
+                      error={errors.region}
+                    />
+
+                    <Input
+                      label="Ville"
+                      name="city"
+                      placeholder="Douala"
+                      value={form.city}
+                      onChange={handleChange}
+                      error={errors.city}
+                    />
+
+                  </div>
+
+                  <Input
+                    label="Adresse"
+                    name="address"
+                    placeholder="Logpom, Douala"
+                    value={form.address}
+                    onChange={handleChange}
+                    error={errors.address}
+                    icon={<MapPin size={16} />}
+                  />
+
+                  <Input
+                    label="Email officiel"
+                    name="schoolEmail"
+                    type="email"
+                    placeholder="contact@school.cm"
+                    value={form.schoolEmail}
+                    onChange={handleChange}
+                    error={errors.schoolEmail}
+                    icon={<Mail size={16} />}
+                  />
+
+                  <Input
+                    label="Téléphone officiel"
+                    name="schoolPhone"
+                    placeholder="+237 6XX XXX XXX"
+                    value={form.schoolPhone}
+                    onChange={handleChange}
+                    error={errors.schoolPhone}
+                    icon={<Phone size={16} />}
+                  />
+
+                </div>
+              )}
+
+              {/* =================================================
+                  STEP 2
+              ================================================= */}
+
+              {step === 2 && (
+                <div className="flex flex-col gap-4">
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                    <Input
+                      label="Prénom"
+                      name="adminFirstName"
+                      placeholder="Amina"
+                      value={form.adminFirstName}
+                      onChange={handleChange}
+                      error={errors.adminFirstName}
+                      icon={<User size={16} />}
+                    />
+
+                    <Input
+                      label="Nom"
+                      name="adminLastName"
+                      placeholder="Nfor"
+                      value={form.adminLastName}
+                      onChange={handleChange}
+                      error={errors.adminLastName}
+                    />
+
+                  </div>
+
+                  <Input
+                    label="Email administrateur"
+                    name="adminEmail"
+                    type="email"
+                    placeholder="amina@school.cm"
+                    value={form.adminEmail}
+                    onChange={handleChange}
+                    error={errors.adminEmail}
+                    icon={<Mail size={16} />}
+                  />
+
+                  <Input
+                    label="Numéro de téléphone"
+                    name="adminPhone"
+                    placeholder="+237 6XX XXX XXX"
+                    value={form.adminPhone}
+                    onChange={handleChange}
+                    error={errors.adminPhone}
+                    icon={<Phone size={16} />}
+                  />
+
+                  <PasswordInput
+                    label="Mot de passe"
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    error={errors.password}
+                    show={showPassword}
+                    setShow={setShowPassword}
+                  />
+
+                  <PasswordInput
+                    label="Confirmer le mot de passe"
+                    name="confirmPassword"
+                    value={form.confirmPassword}
+                    onChange={handleChange}
+                    error={errors.confirmPassword}
+                    show={showConfirmPassword}
+                    setShow={setShowConfirmPassword}
+                  />
+
+                  {/* Admin information */}
+
+                  <div className="flex gap-3 rounded-2xl border border-[#DCCDB7]/70 bg-[#F5EEE2]/70 p-4">
+
+                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/80 text-[#B08742]">
+                      <ShieldCheck size={17} />
+                    </div>
+
+                    <div>
+
+                      <p className="text-[12px] font-semibold text-[#51483F]">
+                        Administrator access
+                      </p>
+
+                      <p className="mt-1 text-[11px] leading-5 text-[#83786B]">
+                        This account will become the initial administrator
+                        and will manage users, roles and school settings.
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </div>
+              )}
+
+              {/* =================================================
+                  STEP 3
+              ================================================= */}
+
+              {step === 3 && (
+                <div className="flex flex-col gap-4">
+
+                  {/* Institution review */}
+
+                  <ReviewCard
+                    icon={<Building2 size={17} />}
+                    title="Institution"
+                  >
+
+                    <Summary
+                      label="Name"
+                      value={form.schoolName}
+                    />
+
+                    <Summary
+                      label="Type"
+                      value={form.institutionType}
+                    />
+
+                    <Summary
+                      label="Location"
+                      value={`${form.city}, ${form.region}`}
+                    />
+
+                    <Summary
+                      label="Email"
+                      value={form.schoolEmail}
+                    />
+
+                    <Summary
+                      label="Phone"
+                      value={form.schoolPhone}
+                    />
+
+                  </ReviewCard>
+
+                  {/* Administrator review */}
+
+                  <ReviewCard
+                    icon={<User size={17} />}
+                    title="Administrator"
+                  >
+
+                    <Summary
+                      label="Name"
+                      value={`${form.adminFirstName} ${form.adminLastName}`}
+                    />
+
+                    <Summary
+                      label="Email"
+                      value={form.adminEmail}
+                    />
+
+                    <Summary
+                      label="Phone"
+                      value={form.adminPhone}
+                    />
+
+                  </ReviewCard>
+
+                  {/* Terms */}
+
+                  <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-[#DED5C9] bg-white/45 p-4">
+
+                    <input
+                      type="checkbox"
+                      name="terms"
+                      checked={form.terms}
+                      onChange={handleChange}
+                      className="mt-1 h-4 w-4 accent-[#B38A45]"
+                    />
+
+                    <span className="text-[11.5px] leading-5 text-[#71675D]">
+                      I agree to the Edugest 360 terms of service and confirm
+                      that I am authorized to create this institution account.
+                    </span>
+
+                  </label>
+
+                  {errors.terms && (
+                    <ErrorText text={errors.terms} />
+                  )}
+
+                </div>
+              )}
+
+              {/* =================================================
+                  NAVIGATION
+              ================================================= */}
+
+              <div className="mt-6 flex gap-3">
+
+                {step > 1 && (
+                  <button
+                    type="button"
+                    onClick={previousStep}
+                    className="flex h-[50px] items-center justify-center gap-2 rounded-xl border border-[#D9CFC2] bg-white/45 px-5 text-[13px] font-semibold text-[#5C544B] transition hover:bg-white/75"
+                  >
+                    <ArrowLeft size={16} />
+                    Back
+                  </button>
+                )}
+
+                {step < 3 ? (
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="flex h-[50px] flex-1 items-center justify-center gap-2 rounded-xl bg-[#3F3A34] text-[13px] font-semibold text-[#F9F0DF] shadow-[0_15px_30px_-15px_rgba(50,40,30,0.65)] transition hover:bg-[#332F2A] active:scale-[0.99]"
+                  >
+                    Continue
+                    <ArrowRight size={16} />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex h-[50px] flex-1 items-center justify-center gap-2 rounded-xl bg-[#3F3A34] text-[13px] font-semibold text-[#F9F0DF] shadow-[0_15px_30px_-15px_rgba(50,40,30,0.65)] transition hover:bg-[#332F2A] active:scale-[0.99] disabled:opacity-60"
+                  >
+                    {loading
+                      ? "Creating institution..."
+                      : "Create institution"}
+
+                    {!loading && <Check size={16} />}
+                  </button>
+                )}
+
+              </div>
+
+            </form>
+
+            {/* Login */}
+
+            <p className="mt-6 text-center text-[12px] text-[#8A8075]">
+
+              Already have an account?{" "}
+
+              <a
+                href="/login"
+                className="font-semibold text-[#AE8340] hover:underline"
+              >
+                Sign in
+              </a>
+
+            </p>
+
+            {/* Security */}
+
+            <div className="mt-5 flex items-center justify-center gap-2 text-[10px] text-[#978C80]">
+
+              <Lock size={12} />
+
+              <span>
+                Secure registration & protected data
+              </span>
+
+            </div>
 
           </div>
 
+          {/* Copyright */}
 
-          {/* Closing tagline */}
-          <p className="font-serif italic text-[17px] text-[#F3EAD9] mt-10">
-            "One workspace for every classroom, cohort, and campus."
+          <p className="absolute bottom-4 right-5 text-[10px] text-[#9A9084] lg:right-8">
+            © 2026 EDUGEST 360 · Confidentialité · Assistance
           </p>
 
         </div>
-
       </div>
-
     </div>
   );
 }
 
-
 // ============================================================
-// REUSABLE INPUT COMPONENT
+// INPUT COMPONENT
 // ============================================================
 
 function Input({
@@ -1008,59 +1058,46 @@ function Input({
   error,
   icon,
 }) {
-
   return (
-
     <div className="flex flex-col gap-1.5">
 
-      {/* Input label */}
-      <label className="text-[13px] font-medium text-[#5C4F42]">
+      <label className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6C6257]">
         {label}
       </label>
 
-
-      {/* Input container */}
       <div
-        className={`flex items-center gap-2.5 bg-white border-[1.5px] rounded-xl px-3.5 h-12 transition focus-within:border-[#D2652F] focus-within:ring-4 focus-within:ring-[#D2652F]/10 ${
+        className={`flex h-[50px] items-center gap-2.5 rounded-xl border bg-white/60 px-3.5 transition focus-within:border-[#B8914A] focus-within:bg-white/80 focus-within:ring-4 focus-within:ring-[#B8914A]/10 ${
           error
-            ? "border-[#C94F3F]"
-            : "border-[#EEE2D0]"
+            ? "border-red-400"
+            : "border-[#DED5C9]"
         }`}
       >
 
-        {/* Optional icon */}
         {icon && (
-          <span className="text-[#B4A695] shrink-0">
+          <span className="shrink-0 text-[#A79A89]">
             {icon}
           </span>
         )}
 
-
-        {/* Actual input */}
         <input
           type={type}
           name={name}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className="flex-1 bg-transparent outline-none text-[14px] placeholder:text-[#C5B8A7] h-full"
+          className="h-full min-w-0 flex-1 bg-transparent text-[14px] text-[#484039] outline-none placeholder:text-[#B3A89A]"
         />
 
       </div>
 
-
-      {/* Validation error */}
-      {error && (
-        <ErrorText text={error} />
-      )}
+      {error && <ErrorText text={error} />}
 
     </div>
   );
 }
 
-
 // ============================================================
-// PASSWORD INPUT COMPONENT
+// PASSWORD INPUT
 // ============================================================
 
 function PasswordInput({
@@ -1072,143 +1109,114 @@ function PasswordInput({
   show,
   setShow,
 }) {
-
   return (
-
     <div className="flex flex-col gap-1.5">
 
-      {/* Password label */}
-      <label className="text-[13px] font-medium text-[#5C4F42]">
+      <label className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6C6257]">
         {label}
       </label>
 
-
-      {/* Password input container */}
       <div
-        className={`flex items-center gap-2.5 bg-white border-[1.5px] rounded-xl px-3.5 h-12 focus-within:border-[#D2652F] focus-within:ring-4 focus-within:ring-[#D2652F]/10 ${
+        className={`flex h-[50px] items-center gap-2.5 rounded-xl border bg-white/60 px-3.5 transition focus-within:border-[#B8914A] focus-within:bg-white/80 focus-within:ring-4 focus-within:ring-[#B8914A]/10 ${
           error
-            ? "border-[#C94F3F]"
-            : "border-[#EEE2D0]"
+            ? "border-red-400"
+            : "border-[#DED5C9]"
         }`}
       >
 
-        {/* Lock icon */}
         <Lock
-          size={17}
-          className="text-[#B4A695]"
+          size={16}
+          className="shrink-0 text-[#A79A89]"
         />
 
-
-        {/* Password field */}
         <input
           type={show ? "text" : "password"}
           name={name}
           value={value}
           onChange={onChange}
           placeholder="••••••••"
-          className="flex-1 bg-transparent outline-none text-[14px]"
+          className="h-full min-w-0 flex-1 bg-transparent text-[14px] text-[#484039] outline-none placeholder:text-[#B3A89A]"
         />
 
-
-        {/* Show/hide password button */}
         <button
           type="button"
-          onClick={() =>
-            setShow((value) => !value)
-          }
-          className="text-[#B4A695] hover:text-[#8A7C6D]"
+          onClick={() => setShow((value) => !value)}
+          className="rounded-lg p-1 text-[#A79A89] transition hover:bg-[#EEE7DC] hover:text-[#62594F]"
         >
-
           {show ? (
-            <EyeOff size={17} />
+            <EyeOff size={16} />
           ) : (
-            <Eye size={17} />
+            <Eye size={16} />
           )}
-
         </button>
 
       </div>
 
-
-      {/* Password validation error */}
-      {error && (
-        <ErrorText text={error} />
-      )}
+      {error && <ErrorText text={error} />}
 
     </div>
   );
 }
 
-
 // ============================================================
-// ERROR MESSAGE COMPONENT
+// ERROR
 // ============================================================
 
 function ErrorText({ text }) {
-
   return (
-    <span className="text-[12px] text-[#C94F3F]">
+    <span className="text-[11px] text-[#C34E43]">
       {text}
     </span>
   );
 }
 
-
 // ============================================================
-// REVIEW SUMMARY COMPONENT
+// REVIEW CARD
 // ============================================================
 
-function Summary({ label, value }) {
-
+function ReviewCard({
+  icon,
+  title,
+  children,
+}) {
   return (
+    <div className="rounded-2xl border border-[#DDD4C8] bg-white/55 p-4">
 
-    <div className="flex justify-between gap-4 py-2 text-[13px]">
+      <div className="mb-3 flex items-center gap-2.5">
 
-      <span className="text-[#958676]">
-        {label}
-      </span>
+        <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#F0E8DA] text-[#AE8340]">
+          {icon}
+        </div>
 
-      <span className="font-medium text-right text-[#42362C]">
-        {value || "—"}
-      </span>
+        <h3 className="text-[13px] font-semibold text-[#4C443C]">
+          {title}
+        </h3>
+
+      </div>
+
+      <div className="divide-y divide-[#E7DED2]">
+        {children}
+      </div>
 
     </div>
   );
 }
 
-
 // ============================================================
-// HERO FEATURE CARD
+// SUMMARY
 // ============================================================
 
-function Feature({
-  icon,
-  title,
-  text,
-}) {
-
+function Summary({ label, value }) {
   return (
+    <div className="flex items-center justify-between gap-4 py-2">
 
-    <div className="flex items-center gap-4 bg-[#34291D] border border-[#453A2B] rounded-2xl p-4">
+      <span className="text-[10px] uppercase tracking-[0.12em] text-[#978C80]">
+        {label}
+      </span>
 
-      {/* Feature icon */}
-      <div className="w-10 h-10 rounded-xl bg-[#453124] text-[#D2652F] grid place-items-center shrink-0">
-        {icon}
-      </div>
-
-
-      {/* Feature text */}
-      <div>
-
-        <p className="text-[14px] font-semibold text-[#F3EAD9]">
-          {title}
-        </p>
-
-        <p className="text-[12px] text-[#A99D8C] mt-0.5">
-          {text}
-        </p>
-
-      </div>
+      <span className="max-w-[65%] text-right text-[12px] font-medium text-[#514940]">
+        {value || "—"}
+      </span>
 
     </div>
   );

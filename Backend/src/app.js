@@ -10,6 +10,11 @@ import personnelRoutes from "./routes/personnel.routes.js";
 import parentRoutes from "./routes/parent.routes.js";
 import estResponsableDeRoutes from "./routes/estResponsableDe.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import classeRoutes from "./routes/classe.routes.js";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "../config/swagger.js";
+import pieceRequiseRoutes from "./routes/pieceRequise.routes.js";
+import inscriptionRoutes from "./routes/inscription.routes.js";
 
 const app=express();
 
@@ -17,6 +22,9 @@ app.use(express.json())
 
 //logger
 app.use(logger)
+
+// Swagger / OpenAPI documentation
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //testing the api 
 app.use("/api",testRoutes)
@@ -29,6 +37,9 @@ app.use("/api/v1/enseignants", enseignantRoutes);
 app.use("/api/v1/personnels", personnelRoutes);
 app.use("/api/v1/parents", parentRoutes);
 app.use("/api/v1/responsabilites", estResponsableDeRoutes);
+app.use("/api/v1/classes", classeRoutes);
+app.use("/api/v1/pieces-requises",pieceRequiseRoutes);
+app.use("/api/v1/inscriptions",inscriptionRoutes);
 
 //error handling
 app.use(errorHandler);

@@ -9,6 +9,10 @@ import EnseignantFormateur from "./EnseignantFormateur.js";
 import Personnel from "./Personnel.js";
 import ParentTuteur from "./ParentTuteur.js";
 import EstResponsableDe from "./EstResponsableDe.js";
+import Necessite from "./Necessite.js";
+import BaremeFrais from "./BaremeFrais.js";
+import PieceRequise from "./PieceRequise.js";
+import Inscription from "./Inscription.js";
 
 /*
  * ============================================================
@@ -96,6 +100,86 @@ Classe.belongsTo(Filiere, {
     as: "filiere",
 });
 
+/*
+ * ============================================================
+ * ASSOCIATIONS - INSCRIPTION
+ * ============================================================
+ */
+
+// Un élève peut avoir plusieurs inscriptions.
+EleveApprenant.hasMany(Inscription, {
+    foreignKey: "mat_eleve",
+    sourceKey: "mat_eleve",
+    as: "inscriptions",
+});
+
+// Une inscription appartient à un élève.
+Inscription.belongsTo(EleveApprenant, {
+    foreignKey: "mat_eleve",
+    targetKey: "mat_eleve",
+    as: "eleve",
+});
+
+
+// Une année scolaire peut avoir plusieurs inscriptions.
+AnneeScolaire.hasMany(Inscription, {
+    foreignKey: "code_annee_scolaire",
+    sourceKey: "code_annee_scolaire",
+    as: "inscriptions",
+});
+
+// Une inscription appartient à une année scolaire.
+Inscription.belongsTo(AnneeScolaire, {
+    foreignKey: "code_annee_scolaire",
+    targetKey: "code_annee_scolaire",
+    as: "anneeScolaire",
+});
+
+
+// Une classe peut avoir plusieurs inscriptions.
+Classe.hasMany(Inscription, {
+    foreignKey: "code_classe",
+    sourceKey: "code_classe",
+    as: "inscriptions",
+});
+
+// Une inscription appartient à une classe.
+Inscription.belongsTo(Classe, {
+    foreignKey: "code_classe",
+    targetKey: "code_classe",
+    as: "classe",
+});
+
+
+/*
+ * ============================================================
+ * ASSOCIATIONS - PIECES REQUISES
+ * ============================================================
+ */
+
+// Une inscription possède plusieurs pièces requises
+// via la table de liaison necessite.
+Inscription.belongsToMany(PieceRequise, {
+    through: Necessite,
+    foreignKey: "ins_id",
+    otherKey: "piece_id",
+    as: "pieces",
+});
+
+// Une pièce peut être requise pour plusieurs inscriptions.
+PieceRequise.belongsToMany(Inscription, {
+    through: Necessite,
+    foreignKey: "piece_id",
+    otherKey: "ins_id",
+    as: "inscriptions",
+});
+
+/*
+ * ============================================================
+ * ASSOCIATIONS - UTILISATEUR
+ * ============================================================
+ */
+
 // Utilisateur - eleve
 Utilisateur.hasOne(EleveApprenant, {
     foreignKey: "usr_id",
@@ -135,6 +219,12 @@ Personnel.belongsTo(Utilisateur, {
     as: "utilisateur",
 });
 
+/*
+ * ============================================================
+ * ASSOCIATIONS - ELEVE
+ * ============================================================
+ */
+
 // Élève - EstResponsableDe
 EleveApprenant.hasMany(EstResponsableDe, {
     foreignKey: "mat_eleve",
@@ -148,6 +238,12 @@ EstResponsableDe.belongsTo(EleveApprenant, {
     as: "eleve",
 });
 
+/*
+ * ============================================================
+ * ASSOCIATIONS - PARENT
+ * ============================================================
+ */
+
 // Parent - EstResponsableDe
 ParentTuteur.hasMany(EstResponsableDe, {
     foreignKey: "com_id",
@@ -159,6 +255,36 @@ EstResponsableDe.belongsTo(ParentTuteur, {
     foreignKey: "com_id",
     targetKey: "com_id",
     as: "parent",
+});
+
+AnneeScolaire.hasMany(BaremeFrais, {
+    foreignKey: "code_annee_scolaire",
+    sourceKey: "code_annee_scolaire",
+});
+
+BaremeFrais.belongsTo(AnneeScolaire, {
+    foreignKey: "code_annee_scolaire",
+    targetKey: "code_annee_scolaire",
+});
+
+Niveau.hasMany(BaremeFrais, {
+    foreignKey: "code_niveau",
+    sourceKey: "code_niveau",
+});
+
+BaremeFrais.belongsTo(Niveau, {
+    foreignKey: "code_niveau",
+    targetKey: "code_niveau",
+});
+
+Filiere.hasMany(BaremeFrais, {
+    foreignKey: "code_filiere",
+    sourceKey: "code_filiere",
+});
+
+BaremeFrais.belongsTo(Filiere, {
+    foreignKey: "code_filiere",
+    targetKey: "code_filiere",
 });
 
 
@@ -174,4 +300,8 @@ export {
     Personnel,
     ParentTuteur,
     EstResponsableDe,
+    Necessite,
+    BaremeFrais,
+    PieceRequise,
+    Inscription,
 };

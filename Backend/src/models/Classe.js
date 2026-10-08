@@ -15,9 +15,16 @@ const Classe = sequelize.define(
             allowNull: false,
         },
 
+        // Effectif actuel de la classe
         effectif_classe: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
+        },
+
+        // Nombre maximum eleves autorisés dans la classe
+        effectif_max: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
         },
 
         statut_classe: {
