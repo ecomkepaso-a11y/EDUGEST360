@@ -37,6 +37,11 @@ const Inscription = sequelize.define(
             allowNull: false,
         },
 
+        motif_refus: {
+            type: DataTypes.STRING(500),
+            allowNull: true,
+        },
+
         fact_id: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: true,

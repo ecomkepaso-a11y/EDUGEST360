@@ -10,6 +10,12 @@ const ParentTuteur = sequelize.define(
             primaryKey: true,
         },
 
+        usr_id: {
+            type: DataTypes.STRING(36),
+            allowNull: true,
+            unique: true,
+        },
+
         com_canal: {
             type: DataTypes.STRING(20),
             allowNull: false,

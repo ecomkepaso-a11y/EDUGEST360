@@ -16,6 +16,10 @@ import {
     ParentTuteur,
     EstResponsableDe,
     BaremeFrais,
+    PieceRequise,
+    Inscription,
+    Necessite,
+    FactureEcheance,
 } from "../models/index.js";
 
 const runSeed = async () => {
@@ -33,19 +37,12 @@ const runSeed = async () => {
     const eta_id = "demo-eta-001";
 
     const baremes = [
-    {
-        code_annee_scolaire: "2026-2027",
-        code_niveau: "NIV-1",
-        code_filiere: null,
-        montant: 100000,
-    },
-    {
-        code_annee_scolaire: "2026-2027",
-        code_niveau: "NIV-2",
-        code_filiere: null,
-        montant: 125000,
-    },
-];
+        { code_annee_scolaire: "2026-2027", code_niveau: "NIV-1", code_filiere: null, montant: 100000 },
+        { code_annee_scolaire: "2026-2027", code_niveau: "NIV-2", code_filiere: null, montant: 125000 },
+        { code_annee_scolaire: "2026-2027", code_niveau: "NIV-1", code_filiere: "FIL-INFO", montant: 110000 },
+        { code_annee_scolaire: "2026-2027", code_niveau: "NIV-2", code_filiere: "FIL-INFO", montant: 135000 },
+        { code_annee_scolaire: "2026-2027", code_niveau: "NIV-1", code_filiere: "FIL-GEST", montant: 105000 },
+    ];
 
     await Etablissement.findOrCreate({
         where: {
@@ -79,6 +76,17 @@ const runSeed = async () => {
             code_annee_scolaire: "2026-2027",
             date_debut_annee: "2026-09-01",
             date_fin_annee: "2027-07-31",
+            eta_id,
+        },
+    });
+
+    // Année précédente utilisée pour démontrer la réinscription.
+    await AnneeScolaire.findOrCreate({
+        where: { code_annee_scolaire: "2025-2026" },
+        defaults: {
+            code_annee_scolaire: "2025-2026",
+            date_debut_annee: "2025-09-01",
+            date_fin_annee: "2026-07-31",
             eta_id,
         },
     });
@@ -195,15 +203,45 @@ for (const bareme of baremes) {
             code_niveau: "NIV-1",
             code_filiere: "FIL-GEST",
         },
+        {
+            code_classe: "CLS-DEMO-FULL",
+            libelle_classe: "Classe complète — démonstration",
+            effectif_classe: 2,
+            effectif_max: 2,
+            statut_classe: true,
+            eta_id,
+            code_annee_scolaire: "2026-2027",
+            code_niveau: "NIV-1",
+            code_filiere: "FIL-INFO",
+        },
+        {
+            code_classe: "CLS-ARCHIVE-1",
+            libelle_classe: "Classe archive 2025-2026",
+            effectif_classe: 1,
+            effectif_max: 40,
+            statut_classe: true,
+            eta_id,
+            code_annee_scolaire: "2025-2026",
+            code_niveau: "NIV-1",
+            code_filiere: "FIL-INFO",
+        },
     ];
 
     for (const classe of classes) {
-        await Classe.findOrCreate({
-            where: {
-                code_classe: classe.code_classe,
-            },
+        const [classeExistante] = await Classe.findOrCreate({
+            where: { code_classe: classe.code_classe },
             defaults: classe,
         });
+        // Garder la classe de démonstration réellement pleine lors des exécutions répétées.
+        if (classe.code_classe === "CLS-DEMO-FULL") {
+            await classeExistante.update({
+                effectif_max: 2,
+                code_annee_scolaire: "2026-2027",
+                code_niveau: "NIV-1",
+                code_filiere: "FIL-INFO",
+                statut_classe: true,
+            });
+        }
     }
 
     /*
@@ -380,6 +418,29 @@ for (const bareme of baremes) {
         },
     });
 
+    const parentUserId = randomUUID();
+    const [parentUser] = await Utilisateur.findOrCreate({
+        where: { usr_login: "demo.parent" },
+        defaults: {
+            usr_id: parentUserId,
+            usr_nom: "Kamga",
+            usr_prenom: "Parent",
+            usr_email: "parent.demo@edugest360.com",
+            usr_tel: "690000005",
+            usr_login: "demo.parent",
+            usr_mdp_hash: passwordHash,
+            usr_role: "parent",
+            usr_statut: "actif",
+            usr_date_creation: new Date(),
+            eta_id,
+        },
+    });
+
+    // Mettre à jour le lien également si le profil parent existait déjà.
+    if (parent.usr_id !== parentUser.usr_id) {
+        await parent.update({ usr_id: parentUser.usr_id });
+    }
+
     /*
     |--------------------------------------------------------------------------
     | 13. RELATION PARENT - ELEVE
@@ -447,12 +508,90 @@ const piecesRequises = [
 
 for (const piece of piecesRequises) {
     await PieceRequise.findOrCreate({
-        where: {
-            piece_nom: piece.piece_nom,
-        },
+        where: { piece_nom: piece.piece_nom },
         defaults: piece,
     });
 }
+
+/*
+|--------------------------------------------------------------------------
+| 14. DOSSIERS DE DÉMONSTRATION ET HISTORIQUE
+|--------------------------------------------------------------------------
+*/
+const demoStudents = [
+    { mat_eleve: "ELEVE-DEMO-PENDING", nom_eleve: "Tchoumi", prenom_eleve: "Attente", sexe_eleve: "F", date_naiss: "2008-02-14", lieu_naiss: "Douala", nationalite: "Camerounaise" },
+    { mat_eleve: "ELEVE-DEMO-VALID-1", nom_eleve: "Nana", prenom_eleve: "Valide Un", sexe_eleve: "M", date_naiss: "2007-03-11", lieu_naiss: "Douala", nationalite: "Camerounaise" },
+    { mat_eleve: "ELEVE-DEMO-VALID-2", nom_eleve: "Mekongo", prenom_eleve: "Valide Deux", sexe_eleve: "F", date_naiss: "2007-04-12", lieu_naiss: "Douala", nationalite: "Camerounaise" },
+    { mat_eleve: "ELEVE-DEMO-REFUSED", nom_eleve: "Fopa", prenom_eleve: "Refus", sexe_eleve: "M", date_naiss: "2008-05-13", lieu_naiss: "Douala", nationalite: "Camerounaise" },
+    { mat_eleve: "ELEVE-DEMO-CANCELLED", nom_eleve: "Etoa", prenom_eleve: "Annule", sexe_eleve: "F", date_naiss: "2008-06-14", lieu_naiss: "Douala", nationalite: "Camerounaise" },
+    { mat_eleve: "ELEVE-DEMO-REINSCRIPTION", nom_eleve: "Biloa", prenom_eleve: "Reinscription", sexe_eleve: "M", date_naiss: "2007-07-15", lieu_naiss: "Douala", nationalite: "Camerounaise" },
+];
+
+for (const student of demoStudents) {
+    await EleveApprenant.findOrCreate({
+        where: { mat_eleve: student.mat_eleve },
+        defaults: student,
+    });
+}
+
+const pieceCatalogue = await PieceRequise.findAll({
+    where: { piece_obligatoire: true, piece_statut: "active" },
+});
+
+const createDemoDossier = async ({ mat_eleve, year, classe, status, dueDate, motif }) => {
+    let fact_id = null;
+    if (status === "validee") {
+        const [facture] = await FactureEcheance.findOrCreate({
+            where: { mat_eleve, fin_date_echeance: dueDate },
+            defaults: {
+                fin_montant_frais: 110000,
+                fin_date_echeance: dueDate,
+                fin_statut: "en_attente",
+                mat_eleve,
+            },
+        });
+        fact_id = facture.fact_id;
+    }
+
+    const dossierValues = {
+        mat_eleve,
+        date_inscription: year === "2025-2026" ? "2025-09-05" : "2026-09-05",
+        statut_inscription: status,
+        code_annee_scolaire: year,
+        code_classe: classe,
+        fact_id,
+        motif_refus: status === "refusee" ? motif : null,
+    };
+    const [dossier] = await Inscription.findOrCreate({
+        where: { mat_eleve, code_annee_scolaire: year },
+        defaults: dossierValues,
+    });
+    // Le seed de démonstration reste reproductible si on le relance.
+    await dossier.update(dossierValues);
+
+    for (const piece of pieceCatalogue) {
+        const necessiteValues = {
+            ins_id: dossier.ins_id,
+            piece_id: piece.piece_id,
+            fournie: status === "validee",
+            date_depot: status === "validee" ? "2026-09-06" : null,
+        };
+        const [necessite] = await Necessite.findOrCreate({
+            where: { ins_id: dossier.ins_id, piece_id: piece.piece_id },
+            defaults: necessiteValues,
+        });
+        await necessite.update(necessiteValues);
+    }
+    return dossier;
+};
+
+await createDemoDossier({ mat_eleve: "ELEVE-DEMO-001", year: "2026-2027", classe: "CLS-INFO-1", status: "en_attente" });
+await createDemoDossier({ mat_eleve: "ELEVE-DEMO-PENDING", year: "2026-2027", classe: "CLS-INFO-1", status: "en_attente" });
+await createDemoDossier({ mat_eleve: "ELEVE-DEMO-VALID-1", year: "2026-2027", classe: "CLS-DEMO-FULL", status: "validee", dueDate: "2026-10-30" });
+await createDemoDossier({ mat_eleve: "ELEVE-DEMO-VALID-2", year: "2026-2027", classe: "CLS-DEMO-FULL", status: "validee", dueDate: "2026-10-31" });
+await createDemoDossier({ mat_eleve: "ELEVE-DEMO-REFUSED", year: "2026-2027", classe: "CLS-INFO-1", status: "refusee", motif: "Dossier incomplet après vérification." });
+await createDemoDossier({ mat_eleve: "ELEVE-DEMO-CANCELLED", year: "2026-2027", classe: "CLS-INFO-2", status: "annulee" });
+await createDemoDossier({ mat_eleve: "ELEVE-DEMO-REINSCRIPTION", year: "2025-2026", classe: "CLS-ARCHIVE-1", status: "validee", dueDate: "2026-06-30" });
 
     /*
     |--------------------------------------------------------------------------
@@ -467,7 +606,8 @@ for (const piece of piecesRequises) {
     console.log("Année scolaire : 2026-2027");
     console.log("Niveaux : 2");
     console.log("Filières : 2");
-    console.log("Classes : 3");
+    console.log("Classes : 5");
+    console.log("Dossiers de démonstration : 6 (tous les statuts + classe pleine)");
     console.log("");
     console.log("Comptes de démonstration :");
     console.log("Direction   : demo.direction");

@@ -5,7 +5,7 @@ import {
     updateClasse,
     deleteClasse,
 } from "../services/classe.service.js";
-
+import { getClasseEffectif } from "../services/classe.service.js";
 import { successResponse } from "../utils/response.js";
 
 export const create = async (req, res, next) => {
@@ -88,6 +88,19 @@ export const remove = async (req, res, next) => {
             classe,
             "Classe désactivée avec succès"
         );
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getEffectif = async (req, res, next) => {
+    try {
+        const result = await getClasseEffectif(req.params.code_classe);
+
+        return res.status(200).json({
+            success: true,
+            data: result,
+        });
     } catch (error) {
         next(error);
     }

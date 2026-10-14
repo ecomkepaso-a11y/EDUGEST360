@@ -13,6 +13,7 @@ import Necessite from "./Necessite.js";
 import BaremeFrais from "./BaremeFrais.js";
 import PieceRequise from "./PieceRequise.js";
 import Inscription from "./Inscription.js";
+import FactureEcheance from "./FactureEcheance.js";
 
 /*
  * ============================================================
@@ -174,11 +175,42 @@ PieceRequise.belongsToMany(Inscription, {
     as: "inscriptions",
 });
 
+// ============================================================
+// INSCRIPTION - FACTURE ECHEANCE
+// ============================================================
+
+// Une inscription peut avoir une facture d'échéance.
+Inscription.belongsTo(FactureEcheance, {
+    foreignKey: "fact_id",
+    targetKey: "fact_id",
+    as: "facture",
+});
+
+// Une facture est rattachée à une inscription via fact_id.
+FactureEcheance.hasOne(Inscription, {
+    foreignKey: "fact_id",
+    sourceKey: "fact_id",
+    as: "inscription",
+});
+
 /*
  * ============================================================
  * ASSOCIATIONS - UTILISATEUR
  * ============================================================
  */
+
+// Un compte utilisateur parent peut être relié à son profil parent/tuteur.
+Utilisateur.hasOne(ParentTuteur, {
+    foreignKey: "usr_id",
+    sourceKey: "usr_id",
+    as: "profilParent",
+});
+
+ParentTuteur.belongsTo(Utilisateur, {
+    foreignKey: "usr_id",
+    targetKey: "usr_id",
+    as: "utilisateur",
+});
 
 // Utilisateur - eleve
 Utilisateur.hasOne(EleveApprenant, {
@@ -304,4 +336,5 @@ export {
     BaremeFrais,
     PieceRequise,
     Inscription,
+    FactureEcheance,
 };

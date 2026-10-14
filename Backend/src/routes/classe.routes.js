@@ -6,15 +6,15 @@ import {
     getOne,
     update,
     remove,
+    getEffectif,
 } from "../controllers/classe.controller.js";
 
 import { validate } from "../middlewares/validate.js";
 import authenticate from "../middlewares/auth.middleware.js";
 import authorize from "../middlewares/rbac.middleware.js";
 
-import {
-    createClasseSchema,
-} from "../validators/classe.validator.js";
+import {createClasseSchema,} from "../validators/classe.validator.js";
+
 
 const router = express.Router();
 
@@ -75,6 +75,12 @@ router.delete(
     "/:code_classe",
     authorize("direction", "personnel"),
     remove
+);
+
+router.get(
+    "/:code_classe/effectif",
+    authorize("direction", "personnel"),
+    getEffectif
 );
 
 export default router;

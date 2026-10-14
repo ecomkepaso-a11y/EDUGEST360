@@ -4,6 +4,7 @@ import {
     AnneeScolaire,
     Niveau,
     Filiere,
+    Inscription,
 } from "../models/index.js";
 
 export const createClasse = async (data) => {
@@ -171,4 +172,41 @@ export const deleteClasse = async (code_classe) => {
     });
 
     return classe;
+};
+
+// ============================================================
+// EFFECTIF D'UNE CLASSE
+// Seules les inscriptions validées comptent dans l'effectif.
+// ============================================================
+
+export const getClasseEffectif = async (code_classe) => {
+    const classe = await Classe.findByPk(code_classe);
+
+    if (!classe) {
+        const error = new Error(
+            `Classe introuvable : ${code_classe}`
+        );
+        error.status = 404;
+        throw error;
+    }
+
+    const effectif = await Inscription.count({
+        where: {
+            code_classe: classe.code_classe,
+            statut_inscription: "validee",
+        },
+    });
+
+    // Une capacité NULL signifie qu'aucune limite n'est définie.
+    const placesRestantes =
+        classe.effectif_max === null
+            ? null
+            : Math.max(classe.effectif_max - effectif, 0);
+
+    return {
+        code_classe: classe.code_classe,
+        effectif,
+        effectif_max: classe.effectif_max,
+        places_restantes: placesRestantes,
+    };
 };

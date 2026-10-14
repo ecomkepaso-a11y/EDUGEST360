@@ -40,7 +40,7 @@ export const createPieceRequiseSchema = Joi.object({
         }),
 
     piece_statut: Joi.string()
-        .max(20)
+        .valid("active", "inactive")
         .optional()
         .default("active"),
 });
@@ -64,6 +64,6 @@ export const updatePieceRequiseSchema = Joi.object({
         .optional(),
 
     piece_statut: Joi.string()
-        .max(20)
+        .valid("active", "inactive")
         .optional(),
 });

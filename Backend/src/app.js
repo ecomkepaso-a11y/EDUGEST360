@@ -15,6 +15,7 @@ import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "../config/swagger.js";
 import pieceRequiseRoutes from "./routes/pieceRequise.routes.js";
 import inscriptionRoutes from "./routes/inscription.routes.js";
+import baremeFraisRoutes from "./routes/baremeFrais.routes.js";
 
 const app=express();
 
@@ -40,6 +41,7 @@ app.use("/api/v1/responsabilites", estResponsableDeRoutes);
 app.use("/api/v1/classes", classeRoutes);
 app.use("/api/v1/pieces-requises",pieceRequiseRoutes);
 app.use("/api/v1/inscriptions",inscriptionRoutes);
+app.use("/api/v1/baremes-frais", baremeFraisRoutes);
 
 //error handling
 app.use(errorHandler);
