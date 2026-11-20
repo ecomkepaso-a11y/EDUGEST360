@@ -1,23 +1,5 @@
 import { useState } from "react";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Building2,
-  Check,
-  GraduationCap,
-  Mail,
-  MapPin,
-  Phone,
-  ShieldCheck,
-  User,
-  Lock,
-  Eye,
-  EyeOff,
-  Users,
-  BookOpen,
-  Sparkles,
-  Map,
-} from "lucide-react";
+import {ArrowLeft,ArrowRight,Building2,Check,GraduationCap,Mail,MapPin,Phone,ShieldCheck,User,Lock,Eye,EyeOff,Users,BookOpen,Sparkles,Map,} from "lucide-react";
 
 // ============================================================
 // MAIN COMPONENT

@@ -1,4 +1,5 @@
 import swaggerJSDoc from "swagger-jsdoc";
+import { planningTags, planningSchemas, planningPaths } from "./swagger.planning.js";
 
 const swaggerDefinition = {
     openapi: "3.0.3",
@@ -1401,5 +1402,9 @@ const swaggerOptions = {
 };
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
+
+swaggerDefinition.tags.push(...planningTags);
+Object.assign(swaggerDefinition.components.schemas, planningSchemas);
+Object.assign(swaggerDefinition.paths, planningPaths);
 
 export default swaggerSpec;

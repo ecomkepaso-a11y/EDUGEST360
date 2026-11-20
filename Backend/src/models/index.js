@@ -14,6 +14,12 @@ import BaremeFrais from "./BaremeFrais.js";
 import PieceRequise from "./PieceRequise.js";
 import Inscription from "./Inscription.js";
 import FactureEcheance from "./FactureEcheance.js";
+import Salle from "./Salle.js";
+import Matiere from "./Matiere.js";
+import Enseign from "./Enseign.js";
+import CreneauPlanning from "./CreneauPlanning.js";
+import Conge from "./Conge.js";
+
 
 /*
  * ============================================================
@@ -272,6 +278,59 @@ EstResponsableDe.belongsTo(EleveApprenant, {
 
 /*
  * ============================================================
+ * ASSOCIATIONS - PLANNING 
+ * ============================================================
+ */
+
+// Un etablissement possede plusieurs salles ; une salle appartient a un seul etablissement.
+Etablissement.hasMany(Salle, {
+    foreignKey: "eta_id",
+    sourceKey: "eta_id",
+    as: "salles",
+});
+
+Salle.belongsTo(Etablissement, {
+    foreignKey: "eta_id",
+    targetKey: "eta_id",
+    as: "etablissement",
+});
+
+// Habilitations : matiere / enseignant via la table enseign.
+Matiere.belongsToMany(EnseignantFormateur, {
+    through: Enseign,
+    foreignKey: "matiere_id",
+    otherKey: "enseignant_id",
+    as: "enseignants",
+});
+
+EnseignantFormateur.belongsToMany(Matiere, {
+    through: Enseign,
+    foreignKey: "enseignant_id",
+    otherKey: "matiere_id",
+    as: "matieres",
+});
+
+// Un creneau relie une classe, une matiere, un enseignant et une salle (RG-PLAN-01).
+Classe.hasMany(CreneauPlanning, { foreignKey: "code_classe", sourceKey: "code_classe", as: "creneaux" });
+CreneauPlanning.belongsTo(Classe, { foreignKey: "code_classe", targetKey: "code_classe", as: "classe" });
+
+Matiere.hasMany(CreneauPlanning, { foreignKey: "matiere_id", sourceKey: "matiere_id", as: "creneaux" });
+CreneauPlanning.belongsTo(Matiere, { foreignKey: "matiere_id", targetKey: "matiere_id", as: "matiere" });
+
+EnseignantFormateur.hasMany(CreneauPlanning, { foreignKey: "enseignant_id", sourceKey: "enseignant_id", as: "creneaux" });
+CreneauPlanning.belongsTo(EnseignantFormateur, { foreignKey: "enseignant_id", targetKey: "enseignant_id", as: "enseignant" });
+
+Salle.hasMany(CreneauPlanning, { foreignKey: "salle_id", sourceKey: "salle_id", as: "creneaux" });
+CreneauPlanning.belongsTo(Salle, { foreignKey: "salle_id", targetKey: "salle_id", as: "salle" });
+
+Utilisateur.hasMany(Conge, { foreignKey: "usr_id", sourceKey: "usr_id", as: "conges" });
+Conge.belongsTo(Utilisateur, { foreignKey: "usr_id", targetKey: "usr_id", as: "utilisateur" });
+
+Personnel.hasMany(Conge, { foreignKey: "rh_id", sourceKey: "rh_id", as: "conges" });
+Conge.belongsTo(Personnel, { foreignKey: "rh_id", targetKey: "rh_id", as: "personnel" });
+
+/*
+ * ============================================================
  * ASSOCIATIONS - PARENT
  * ============================================================
  */
@@ -320,6 +379,8 @@ BaremeFrais.belongsTo(Filiere, {
 });
 
 
+
+
 export {
     Etablissement,
     AnneeScolaire,
@@ -337,4 +398,9 @@ export {
     PieceRequise,
     Inscription,
     FactureEcheance,
+    Salle,
+    Matiere,
+    Enseign,
+    CreneauPlanning,
+    Conge,
 };

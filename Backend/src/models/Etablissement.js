@@ -46,6 +46,22 @@ const Etablissement=sequelize.define("etablissement",{
         allowNull:false,
         defaultValue:"actif",
     },
+    eta_statut:{
+        type:DataTypes.STRING(20),
+        allowNull:false,
+        defaultValue:"actif",
+    },
+    eta_heure_ouverture:{
+        type:DataTypes.TIME,
+        allowNull:false,
+        defaultValue:"07:00:00",
+    },
+    eta_heure_fermeture:{
+        type:DataTypes.TIME,
+        allowNull:false,
+        defaultValue:"18:00:00",
+    },
+
 },
 {
     tableName:"etablissement",

@@ -20,6 +20,11 @@ import {
     Inscription,
     Necessite,
     FactureEcheance,
+    Salle,
+    Matiere,
+    Enseign,
+    CreneauPlanning,
+    Conge,
 } from "../models/index.js";
 
 const runSeed = async () => {
@@ -59,6 +64,8 @@ const runSeed = async () => {
             eta_tel: "690000000",
             eta_email: "demo@edugest360.com",
             eta_statut: "actif",
+            eta_heure_ouverture: "07:00:00",
+            eta_heure_fermeture: "18:00:00",
         },
     });
 
@@ -347,7 +354,7 @@ for (const bareme of baremes) {
         },
     });
 
-    await EnseignantFormateur.findOrCreate({
+    const [enseignantDemo]=await EnseignantFormateur.findOrCreate({
         where: {
             usr_id: enseignantUser.usr_id,
         },
@@ -358,9 +365,58 @@ for (const bareme of baremes) {
         },
     });
 
+        /*
+    |--------------------------------------------------------------------------
+    | 11. PLANNING : SALLES, MATIERES, HABILITATIONS 
+    |--------------------------------------------------------------------------
+    */
+
+    const sallesDemo = [
+        { salle_nom: "Salle 1", capacite: 40 },
+        { salle_nom: "Salle 2", capacite: 30 },
+        { salle_nom: "Labo Informatique", capacite: 25 },
+    ];
+
+    for (const salle of sallesDemo) {
+        await Salle.findOrCreate({
+            where: { eta_id, salle_nom: salle.salle_nom },
+            defaults: { eta_id, ...salle },
+        });
+    }
+
+    const matieresDemo = [
+        { matiere_code: "INFO", matiere_libelle: "Informatique" },
+        { matiere_code: "MATH", matiere_libelle: "Mathématiques" },
+        { matiere_code: "FR", matiere_libelle: "Français" },
+        { matiere_code: "ANG", matiere_libelle: "Anglais" },
+    ];
+
+    const matieres = {};
+    for (const matiere of matieresDemo) {
+        const [row] = await Matiere.findOrCreate({
+            where: { matiere_code: matiere.matiere_code },
+            defaults: matiere,
+        });
+        matieres[matiere.matiere_code] = row;
+    }
+
+    // L'enseignant de démonstration est habilité en informatique et en mathématiques.
+    for (const code of ["INFO", "MATH"]) {
+        await Enseign.findOrCreate({
+            where: {
+                matiere_id: matieres[code].matiere_id,
+                enseignant_id: enseignantDemo.enseignant_id,
+            },
+            defaults: {
+                matiere_id: matieres[code].matiere_id,
+                enseignant_id: enseignantDemo.enseignant_id,
+            },
+        });
+    }
+
     /*
     |--------------------------------------------------------------------------
-    | 11. ELEVE
+    | 12. ELEVE
     |--------------------------------------------------------------------------
     */
 
@@ -403,7 +459,7 @@ for (const bareme of baremes) {
 
     /*
     |--------------------------------------------------------------------------
-    | 12. PARENT
+    | 13. PARENT
     |--------------------------------------------------------------------------
     */
 
@@ -443,7 +499,7 @@ for (const bareme of baremes) {
 
     /*
     |--------------------------------------------------------------------------
-    | 13. RELATION PARENT - ELEVE
+    | 14. RELATION PARENT - ELEVE
     |--------------------------------------------------------------------------
     */
 
@@ -461,7 +517,7 @@ for (const bareme of baremes) {
 
     /*
 |--------------------------------------------------------------------------
-| 13.CATALOGUE DES PIECES REQUISES
+| 15.CATALOGUE DES PIECES REQUISES
 |--------------------------------------------------------------------------
 |
 | Données de démonstration uniquement.
@@ -515,7 +571,7 @@ for (const piece of piecesRequises) {
 
 /*
 |--------------------------------------------------------------------------
-| 14. DOSSIERS DE DÉMONSTRATION ET HISTORIQUE
+| 16. DOSSIERS DE DÉMONSTRATION ET HISTORIQUE
 |--------------------------------------------------------------------------
 */
 const demoStudents = [
@@ -593,6 +649,133 @@ await createDemoDossier({ mat_eleve: "ELEVE-DEMO-REFUSED", year: "2026-2027", cl
 await createDemoDossier({ mat_eleve: "ELEVE-DEMO-CANCELLED", year: "2026-2027", classe: "CLS-INFO-2", status: "annulee" });
 await createDemoDossier({ mat_eleve: "ELEVE-DEMO-REINSCRIPTION", year: "2025-2026", classe: "CLS-ARCHIVE-1", status: "validee", dueDate: "2026-06-30" });
 
+
+/*
+|--------------------------------------------------------------------------
+| 17. PLANNING 
+|--------------------------------------------------------------------------
+*/
+
+    
+    const eta2_id = "demo-eta-002";
+    await Etablissement.findOrCreate({
+        where: { eta_id: eta2_id },
+        defaults: {
+            eta_id: eta2_id, eta_code: "EDU360-CM2", eta_nom: "EDUGEST 360 Demo 2", eta_type: "secondaire",
+            eta_adresse: "Yaoundé", eta_ville: "Yaoundé", eta_pays: "Cameroun", eta_tel: "690000010",
+            eta_email: "demo2@edugest360.com", eta_statut: "actif",
+            eta_heure_ouverture: "08:00:00", eta_heure_fermeture: "17:00:00",
+        },
+    });
+
+    await Utilisateur.findOrCreate({
+        where: { usr_login: "demo.direction2" },
+        defaults: {
+            usr_id: randomUUID(), usr_nom: "Admin", usr_prenom: "Direction 2", usr_email: "direction2.demo@edugest360.com",
+            usr_tel: "690000011", usr_login: "demo.direction2", usr_mdp_hash: passwordHash, usr_role: "direction",
+            usr_statut: "actif", usr_date_creation: new Date(), eta_id: eta2_id,
+        },
+    });
+
+    for (const salle of [{ salle_nom: "Salle A", capacite: 35 }, { salle_nom: "Salle B", capacite: 20 }]) {
+        await Salle.findOrCreate({ where: { eta_id: eta2_id, salle_nom: salle.salle_nom }, defaults: { eta_id: eta2_id, ...salle } });
+    }
+
+    await Classe.findOrCreate({
+        where: { code_classe: "CLS-ETA2-1" },
+        defaults: {
+            code_classe: "CLS-ETA2-1", libelle_classe: "Seconde A — établissement 2", effectif_classe: 20, effectif_max: 30,
+            statut_classe: true, eta_id: eta2_id, code_annee_scolaire: "2026-2027", code_niveau: "NIV-2", code_filiere: null,
+        },
+    });
+
+    // 17.2 Deuxième enseignant (Français / Anglais) dans l'établissement de démonstration
+    const [enseignant2User] = await Utilisateur.findOrCreate({
+        where: { usr_login: "demo.enseignant2" },
+        defaults: {
+            usr_id: randomUUID(), usr_nom: "Biya", usr_prenom: "Enseignante", usr_email: "enseignant2.demo@edugest360.com",
+            usr_tel: "690000012", usr_login: "demo.enseignant2", usr_mdp_hash: passwordHash, usr_role: "enseignant",
+            usr_statut: "actif", usr_date_creation: new Date(), eta_id,
+        },
+    });
+    const [enseignant2] = await EnseignantFormateur.findOrCreate({
+        where: { usr_id: enseignant2User.usr_id },
+        defaults: { usr_id: enseignant2User.usr_id, enseignant_specialite: "Lettres", enseignant_statut: true },
+    });
+    for (const code of ["FR", "ANG"]) {
+        await Enseign.findOrCreate({
+            where: { matiere_id: matieres[code].matiere_id, enseignant_id: enseignant2.enseignant_id },
+            defaults: { matiere_id: matieres[code].matiere_id, enseignant_id: enseignant2.enseignant_id },
+        });
+    }
+    const [eleveUser2] = await Utilisateur.findOrCreate({
+        where: { usr_login: "demo.eleve2" },
+        defaults: {
+            usr_id: randomUUID(), usr_nom: "Owona", usr_prenom: "Élève Planning", usr_email: "eleve2.demo@edugest360.com",
+            usr_tel: "690000013", usr_login: "demo.eleve2", usr_mdp_hash: passwordHash, usr_role: "élève",
+            usr_statut: "actif", usr_date_creation: new Date(), eta_id,
+        },
+    });
+    await EleveApprenant.findOrCreate({
+        where: { mat_eleve: "ELEVE-DEMO-PLAN" },
+        defaults: {
+            mat_eleve: "ELEVE-DEMO-PLAN", usr_id: eleveUser2.usr_id, nom_eleve: "Owona", prenom_eleve: "Élève Planning",
+            sexe_eleve: "F", date_naiss: "2008-09-09", lieu_naiss: "Douala", nationalite: "Camerounaise",
+        },
+    });
+    await Inscription.findOrCreate({
+        where: { mat_eleve: "ELEVE-DEMO-PLAN", code_annee_scolaire: "2026-2027" },
+        defaults: {
+            mat_eleve: "ELEVE-DEMO-PLAN", code_annee_scolaire: "2026-2027", code_classe: "CLS-INFO-1",
+            date_inscription: "2026-09-05", statut_inscription: "validee",
+        },
+    });
+    await EstResponsableDe.findOrCreate({
+        where: { mat_eleve: "ELEVE-DEMO-PLAN", com_id: parent.com_id },
+        defaults: { mat_eleve: "ELEVE-DEMO-PLAN", com_id: parent.com_id, lien_parente: "père" },
+    });
+
+    const salleParNom = {};
+    for (const salle of await Salle.findAll({ where: { eta_id } })) salleParNom[salle.salle_nom] = salle;
+
+    // [classe, jour, début, fin, matière, enseignant, salle]
+    const creneauxDemo = [
+        // Enseignant de démo (Informatique / Maths)
+        ["CLS-INFO-1", "lundi",    "08:00:00", "10:00:00", "INFO", enseignantDemo,  "Salle 1"],
+        ["CLS-INFO-2", "lundi",    "10:00:00", "12:00:00", "MATH", enseignantDemo,  "Salle 2"],
+        ["CLS-INFO-2", "mercredi", "08:00:00", "10:00:00", "INFO", enseignantDemo,  "Salle 2"],
+        ["CLS-INFO-1", "mercredi", "14:00:00", "16:00:00", "MATH", enseignantDemo,  "Salle 1"],
+        ["CLS-GEST-1", "vendredi", "08:00:00", "10:00:00", "MATH", enseignantDemo,  "Salle 1"],
+        // Enseignante 2 (Français / Anglais)
+        ["CLS-INFO-2", "lundi",    "08:00:00", "10:00:00", "FR",   enseignant2,     "Salle 2"],
+        ["CLS-INFO-1", "mardi",    "08:00:00", "10:00:00", "ANG",  enseignant2,     "Salle 1"],
+        ["CLS-GEST-1", "mardi",    "10:00:00", "12:00:00", "FR",   enseignant2,     "Salle 1"],
+        ["CLS-GEST-1", "jeudi",    "08:00:00", "10:00:00", "ANG",  enseignant2,     "Salle 1"],
+        ["CLS-INFO-1", "jeudi",    "10:00:00", "12:00:00", "FR",   enseignant2,     "Salle 2"],
+    ];
+
+    for (const [code_classe, plan_jour, plan_heure_debut, plan_heure_fin, codeMatiere, prof, nomSalle] of creneauxDemo) {
+        await CreneauPlanning.findOrCreate({
+            where: { code_classe, plan_jour, plan_heure_debut, salle_id: salleParNom[nomSalle].salle_id },
+            defaults: {
+                code_classe, plan_jour, plan_heure_debut, plan_heure_fin, plan_statut: "actif",
+                matiere_id: matieres[codeMatiere].matiere_id, enseignant_id: prof.enseignant_id,
+                salle_id: salleParNom[nomSalle].salle_id,
+            },
+        });
+    }
+
+    const personnelDemo = await Personnel.findOne({ where: { rh_matricule: "RH-DEMO-001" } });
+
+    await Conge.findOrCreate({
+        where: { conge_id: "demo-conge-001" },
+        defaults: {
+            conge_id: "demo-conge-001", conge_date_debut: "2026-11-09", conge_date_fin: "2026-11-11",
+            conge_motif: "Congé de démonstration (RG-PLAN-06)", rh_statut_conge: "valide",
+            rh_id: personnelDemo.rh_id, usr_id: enseignantUser.usr_id,
+        },
+    });
+
     /*
     |--------------------------------------------------------------------------
     | FIN
@@ -606,7 +789,8 @@ await createDemoDossier({ mat_eleve: "ELEVE-DEMO-REINSCRIPTION", year: "2025-202
     console.log("Année scolaire : 2026-2027");
     console.log("Niveaux : 2");
     console.log("Filières : 2");
-    console.log("Classes : 5");
+    console.log("Classes : 6 (dont 1 dans le 2e établissement)");
+    console.log("Établissements : 2 (EDU360-CM, EDU360-CM2) ; 10 créneaux sur 3 classes ; 1 congé validé (demo-conge-001)");
     console.log("Dossiers de démonstration : 6 (tous les statuts + classe pleine)");
     console.log("");
     console.log("Comptes de démonstration :");
@@ -615,6 +799,7 @@ await createDemoDossier({ mat_eleve: "ELEVE-DEMO-REINSCRIPTION", year: "2025-202
     console.log("Enseignant  : demo.enseignant");
     console.log("Élève       : demo.eleve");
     console.log("Parent      : demo.parent");
+    console.log("Planning    : demo.enseignant2, demo.eleve2 (inscription validée), demo.direction2 (établissement 2)");
     console.log("");
     console.log("Mot de passe développement : Demo@12345");
 };

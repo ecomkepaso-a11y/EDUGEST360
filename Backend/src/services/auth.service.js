@@ -4,9 +4,6 @@ import bcrypt from "bcrypt";
 
 import { Utilisateur } from "../models/index.js";
 
-console.log("JWT SECRET LOADED:", process.env.JWT_SECRET);
-
-
 export const loginUtilisateur = async (login, password) => {
     const utilisateur = await Utilisateur.findOne({
         where: {

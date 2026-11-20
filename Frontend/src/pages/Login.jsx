@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {Mail,Lock,Eye,EyeOff,ArrowRight,ShieldCheck,BookOpen,Users,GraduationCap,} from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { loginRequest } from "../../../Backend/src/api/auth.js";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,6 +13,9 @@ export default function Login() {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const [serverError, setServerError] = useState("");
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -33,7 +37,7 @@ export default function Login() {
     const next = {};
 
     if (!form.email.trim()) {
-      next.email = "Veuillez renseigner votre adresse email.";
+      next.email = "Veuillez renseigner votre identifiant.";
     }
 
     if (!form.password) {
@@ -47,20 +51,25 @@ export default function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setServerError("");
 
     if (!validate()) return;
 
     setLoading(true);
 
     try {
-      
-      // await api.post("/auth/login", form);
+      // The backend expects { login, password }, so the "email" field is sent as login
+      const { token, utilisateur } = await loginRequest(
+        form.email.trim(),
+        form.password
+      );
 
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(utilisateur));
 
-      console.log("Login data:", form);
+      navigate("/dashboard", { replace: true });
     } catch (error) {
-      console.error("Login error:", error);
+      setServerError(error.message);
     } finally {
       setLoading(false);
     }
@@ -611,7 +620,7 @@ export default function Login() {
                 <label className="flex flex-col gap-2">
 
                   <span className="text-[13px] font-semibold text-[#5D554C]">
-                    Adresse email
+                    Identifiant
                   </span>
 
                   <span
@@ -642,10 +651,10 @@ export default function Login() {
                     />
 
                     <input
-                      type="email"
+                      type="text"
                       name="email"
                       autoComplete="username"
-                      placeholder="nom@etablissement.com"
+                      placeholder="Votre identifiant"
                       value={form.email}
                       onChange={handleChange}
                       className="
@@ -800,6 +809,16 @@ export default function Login() {
                   </Link>
 
                 </div>
+
+                {/* =================================================
+                    SERVER ERROR (wrong credentials, inactive account...)
+                ================================================== */}
+
+                {serverError && (
+                  <div className="rounded-[14px] border border-red-300 bg-red-50 px-4 py-3 text-[13px] text-red-600">
+                    {serverError}
+                  </div>
+                )}
 
                 {/* =================================================
                     LOGIN BUTTON

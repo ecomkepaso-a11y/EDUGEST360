@@ -1,3 +1,4 @@
+import cors from "cors";
 import express from "express"
 import testRoutes from "./routes/test.routes.js"
 import logger from "./middlewares/logger.js"
@@ -16,8 +17,16 @@ import swaggerSpec from "../config/swagger.js";
 import pieceRequiseRoutes from "./routes/pieceRequise.routes.js";
 import inscriptionRoutes from "./routes/inscription.routes.js";
 import baremeFraisRoutes from "./routes/baremeFrais.routes.js";
+import salleRoutes from "./routes/salle.routes.js";
+import matiereRoutes from "./routes/matiere.routes.js";
+import creneauRoutes from "./routes/creneau.routes.js";
+import planningRoutes from "./routes/planning.routes.js";
+import congeRoutes from "./routes/conge.routes.js";
+
 
 const app=express();
+
+app.use(cors({ origin: "http://localhost:5173" }));
 
 app.use(express.json())
 
@@ -40,8 +49,13 @@ app.use("/api/v1/parents", parentRoutes);
 app.use("/api/v1/responsabilites", estResponsableDeRoutes);
 app.use("/api/v1/classes", classeRoutes);
 app.use("/api/v1/pieces-requises",pieceRequiseRoutes);
+app.use("/api/v1/salles", salleRoutes);
+app.use("/api/v1/matieres", matiereRoutes);
 app.use("/api/v1/inscriptions",inscriptionRoutes);
 app.use("/api/v1/baremes-frais", baremeFraisRoutes);
+app.use("/api/v1/creneaux", creneauRoutes);
+app.use("/api/v1/planning", planningRoutes);
+app.use("/api/v1/conges", congeRoutes);   
 
 //error handling
 app.use(errorHandler);

@@ -1,11 +1,13 @@
 // Import React Router components
 import {BrowserRouter,Routes,Route,} from "react-router-dom";
 
+
 // Import application pages
 import Login from "./pages/Login";
 import RegisterInstitution from "./pages/RegisterInstitution";
-import ForgotPassword from "./pages/ForgotPassword";
 
+import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // ============================================================
 // MAIN APPLICATION COMPONENT
@@ -43,16 +45,6 @@ function App() {
         />
 
 
-        {/* ====================================================
-            FORGOT PASSWORD PAGE
-            URL:/forgot-password
-        ==================================================== */}
-
-        <Route
-          path="/forgot-password"
-          element={<ForgotPassword />}
-        />
-
 
         {/* ====================================================
             DEFAULT ROUTE
@@ -63,6 +55,15 @@ function App() {
           path="*"
           element={<Login />}
         />
+
+        <Route
+  path="/dashboard"
+  element={
+    <ProtectedRoute>
+      <Dashboard />
+    </ProtectedRoute>
+  }
+/>
 
       </Routes>
 
